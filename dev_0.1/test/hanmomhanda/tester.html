@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+    <title>TODO supply a title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<form method='post' action='http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/mockTarget.php'>
+<!--    <input type='text' id='keyword1'>
+    <br/>
+    <input type='text' id='keyword2'>
+    <br/>
+-->
+</form>
+<script src="http://projectbs.github.io/bsJS/bsjs.0.3.js"></script>
+<script>
+bs( function(){
+var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/bsCORS.php'
+  , _pv1 = 'abcde'
+  , _pv2 = '오명운'
+;
+
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body', // body를 부모로
+    'html', 'bsCORS', // html 입력
+    'width', 300, // 스타일 지정
+    'click', bsCORS // 이벤트 등록
+);
+
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body', // body를 부모로
+    'html', 'pureCORS', // html 입력
+    'width', 300, // 스타일 지정
+    'click', pureCORS // 이벤트 등록
+);
+    
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body', // body를 부모로
+    'html', 'directCORS', // html 입력
+    'width', 300, // 스타일 지정
+    'click', directCORS // 이벤트 등록
+);
+
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body', // body를 부모로
+    'html', 'ClearResult', // html 입력
+    'width', 300, // 스타일 지정
+    'click', clearResult // 이벤트 등록
+);
+bs.Dom('<hr>').S( '<', 'body');
+bs.Dom('<span id="result"></span>').S( '<', 'body');
+function end(data) {
+//    console.log(data);
+//    document.getElementById('result').innerHTML=data;
+    bs.Dom('#result').S('html', data);
+}
+
+function bsCORS() {
+//    console.log(document.forms[0].elements[0].value);
+//    console.log(document.forms[0].action);
+
+    bs.post(end, _postTarget, 
+            'url', document.forms[0].action, 
+//            'p1', document.forms[0].elements[0].value,
+//            'p2', document.forms[0].elements[1].value);
+            'p1', _pv1,
+            'p2', _pv2);
+
+//    var xhr = getXHR();
+//     xhr.onreadystatechanged = handleStateChange;
+//     xhr.open("POST", 'http://hanmomhanda-apex-mint/bsCORS/bsCORS.php', true);
+//     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+//     xhr.send('p1=' + document.forms[0].elements[0].value + '&p2=' + document.forms[0].elements[1].value);
+}
+
+function pureCORS() {
+    var xhr = getXHR()
+      , data
+    ;
+    xhr.onreadystatechange = function() {
+        handleStateChange(xhr);
+    };
+    xhr.open("POST", _postTarget, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+    xhr.setRequestHeader("bscors-real-target-url", document.forms[0].action);
+    xhr.setRequestHeader("bscors-original-method", "REALMETHOD");
+//    xhr.setRequestHeader("Access-Control-Request-Method", "POST");
+//    xhr.setRequestHeader("Access-Control-Request-Headers", "x-hanmomhanda");
+//    xhr.send('url=' + document.forms[0].action + '&p1=' + _pv1 + '&p2=' + _pv2);
+//    xhr.send('p1=' + _pv1 + '&p2=' + _pv2);
+    data = {        
+        'p1' : _pv1,
+        'p2' : _pv2,
+        'url' : document.forms[0].action,
+        'customheader' : 'CUSTOM_HEADER',
+        'method' : 'GET'
+    };
+    xhr.send( 'postdata='+JSON.stringify(data) );
+//    xhr.send('postdata='+data);
+}
+
+function directCORS() {
+    var xhr = getXHR();
+    xhr.onreadystatechange = function() { handleStateChange(xhr); };
+    xhr.open("POST", document.forms[0].action, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+    xhr.send('p1=' + _pv1 + '&p2=' + _pv2);
+}
+
+function clearResult() {
+    bs.Dom('#result').S('html', '');
+}
+
+function handleStateChange(xhr) {
+    if (xhr.readyState == 4 ) {
+        if (xhr.status == 200 ) {
+            console.dir(xhr);
+            end(xhr.responseText);
+        }
+    }
+}
+
+function getXHR() {
+    if (window.ActiveXObject) {
+        return new ActiveXObject("Microsoft.XMLHTTP");
+    } else if (window.XMLHttpRequest) {
+        return new XMLHttpRequest();
+    }
+}
+
+} );
+</script>
+</body>
+</html>
