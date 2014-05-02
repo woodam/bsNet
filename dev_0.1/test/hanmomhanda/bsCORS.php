@@ -63,26 +63,19 @@ function processCORS($svr, $post) {
 //showAllReqHeaders();
 //showJSONdata($post);
 //showURLinJSON($post);
-    setResponseHeaders($svr, $post); 
-    getResultFromTarget($svr, $post);
-//        var_dump(getJsonResult($r0));
-//		echo $r0;
+    setResponseHeaders($svr, $post);
+    echo getResultFromTarget($svr, $post);
+
 }
 
 //////////
-// Preflight Request, Actual Request에 맞게 Response Header 설정
-// return false when this is a Preflight Response.
-// return true  when this is a Actual Response.
-// 원래 Actual Request와 Preflight Request를 구분하려 했으나
-// bsJS가 header에 Cache-Control을 자동으로 추가하여
-// 언제나 Preflight Request로 요청이 오게 됨
-// 
-// 위에꺼 틀렸음
-// PHP 프로그램에서 Req Header를 분석하여
-// Actual 인지 Preflight 인지 구분하는 것이 아니라
+// PHP 데몬이 Req Header를 분석하여
 // header()에 정해진대로 웹서버가 알아서 구분하여 처리
-// 즉, header()에 정해진대로 OPTIONS 안의 내용에 대해 웹서버가 알아서 처리
-// PHP 프로그램에서는 Preflight request에 대한 요청을 직접 처리할 수 없고
+// 즉, OPTIONS 인지 아닌지 프로그래머가 직접 구분하는 것이 아니라
+// header()에 정해진대로 OPTIONS 이든 아니든 내용에 대해 웹서버가 알아서 처리
+// 
+
+// PHP 프로그램 내에서는 Preflight request에 대한 요청을 직접 처리할 수 없고
 // 찍어서 나오는 값은 언제나 Actual request에 대한 내용이다.
 // 
 function setResponseHeaders($svr, $post) {
@@ -105,32 +98,26 @@ function setResponseHeaders($svr, $post) {
 }
 
 //////////
-// curl Target에서 받은 Result를 Hash로 만들어 반환
+// curl로 Target에서 받은 Result를 그대로 반환
 //
 function getResultFromTarget($svr, $post) {
 
     $decodedObj = json_decode($post['postdata']);
-    print_r( $decodedObj->url );
-//    return http_build_query($decodedArr);
-//    return $svr['HTTP_BSCORS_REAL_TARGET_URL'];
-//    return $decodedArr;
-/*
-    $t0 = curl_init();
+    $method = $decodedObj->method;
 
+    $t0 = curl_init();
     curl_setopt( $t0, CURLOPT_URL, $decodedObj->url);
     curl_setopt( $t0, CURLOPT_HEADER, FALSE );
     curl_setopt( $t0, CURLOPT_RETURNTRANSFER, TRUE );
-//    curl_setopt( $t0, CURLOPT_POST, TRUE );
-    curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query(getRealUserDataArray($post)) ); // urlencoded    
-//    curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr, $post)); //-> CURLOPT_HTTPHEADER를 수동으로 지정해주면 Bad Request 발생. 이유 모름.
+    curl_setopt( $t0, CURLOPT_CUSTOMREQUEST, $method );
+    if ( strcasecmp($method, 'post') == 0 ) {
+        curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query(getRealUserDataArray($post)) );    
+    }    
+    curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr, $post));
     $t1 = curl_exec($t0);
     curl_close($t0);
 
-//echo "\n" . '=== getResultFromTarget ===' . "\n";
     return $t1 === FALSE ? curl_error($t0) : $t1;
-
-//    return AssociativeArray
-//*/
 }
 
 //////////
@@ -139,8 +126,8 @@ function getResultFromTarget($svr, $post) {
 //
 function getRealUserDataArray($post) {
     $decodedObj = json_decode($post['postdata']);
-    getURLfromPost($post);
-
+    $resultArr = array();
+    
     foreach($decodedObj as $k => $v) {        
         if ( $k != 'url' && $k != 'customheader' && $k != 'method') {
             $resultArr[$k] =$v;
@@ -155,28 +142,18 @@ function getRealUserDataArray($post) {
 //
 function getRequestHeaders($svr, $post) {
 
-	$br = '<br/>' . "\n";
-	
-	$url_from_bsAgent = $post['url'];
-	$pOfSlash = strpos($url_from_bsAgent, '/', 7);
-	$server_host = $pOfSlash ? substr($url_from_bsAgent, 0, $pOfSlash ) : $url_from_bsAgent;
-	
-	$h_arr = array('Host: ' . $server_host);
-	array_push($h_arr, 'User-Agent: ' . $svr['HTTP_USER_AGENT']);
-	//	array_push($h_arr, 'Origin: ' . $svr['HTTP_ORIGIN']);
-	/*
-		$ac_req_method = $svr['HTTP_ACCESS_CONTROL_REQUEST_METHOD'];
-		isset($ac_req_method) ? array_push($h_arr, 'Access-Control-Request-Method: ' . $ac_req_method) : 0;
-		
-		$ac_req_headers = $svr['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'];
-		isset($ac_req_headers) ? array_push($h_arr, 'Access-Control-Request-Headers: ', $ac_req_headeers) : 0;
-	*/
-		
-	// 	$i = count($h_arr);
-	// 	while($i--) echo $h_arr[$i] . $br;
-	return $h_arr;
+    $h_arr = array('Host: ' . $svr['HTTP_HOST']);
+    array_push($h_arr, 'User-Agent: ' . $svr['HTTP_USER_AGENT']);
+    //	array_push($h_arr, 'Origin: ' . $svr['HTTP_ORIGIN']);
+    /*
+            $ac_req_method = $svr['HTTP_ACCESS_CONTROL_REQUEST_METHOD'];
+            isset($ac_req_method) ? array_push($h_arr, 'Access-Control-Request-Method: ' . $ac_req_method) : 0;
+
+            $ac_req_headers = $svr['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'];
+            isset($ac_req_headers) ? array_push($h_arr, 'Access-Control-Request-Headers: ', $ac_req_headeers) : 0;
+    */
+    return $h_arr;
 }
-//*/
 
 //////////
 // 유효하지 않은 CORS Request 처리

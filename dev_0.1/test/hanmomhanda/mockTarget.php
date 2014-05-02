@@ -8,7 +8,7 @@ foreach( $_SERVER as $k=>$v ) {
 }
 
 echo '====== MockTarget : Infos in $_POST ======' . $br;
-foreach( $_POST as $k=>$v ) {
+foreach( $_REQUEST as $k=>$v ) {
 	echo $k . ' : ' . $v . $br;
 }
 

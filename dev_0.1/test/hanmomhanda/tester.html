@@ -83,8 +83,8 @@ function pureCORS() {
     };
     xhr.open("POST", _postTarget, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-    xhr.setRequestHeader("bscors-real-target-url", document.forms[0].action);
-    xhr.setRequestHeader("bscors-original-method", "REALMETHOD");
+//    xhr.setRequestHeader("bscors-real-target-url", document.forms[0].action);
+//    xhr.setRequestHeader("bscors-original-method", "REALMETHOD");
 //    xhr.setRequestHeader("Access-Control-Request-Method", "POST");
 //    xhr.setRequestHeader("Access-Control-Request-Headers", "x-hanmomhanda");
 //    xhr.send('url=' + document.forms[0].action + '&p1=' + _pv1 + '&p2=' + _pv2);
@@ -94,7 +94,7 @@ function pureCORS() {
         'p2' : _pv2,
         'url' : document.forms[0].action,
         'customheader' : 'CUSTOM_HEADER',
-        'method' : 'GET'
+        'method' : 'POST'
     };
     xhr.send( 'postdata='+JSON.stringify(data) );
 //    xhr.send('postdata='+data);
