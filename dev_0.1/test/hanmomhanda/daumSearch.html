@@ -6,19 +6,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<form method='post' action='http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/mockTarget.php'>
-<!--    <input type='text' id='keyword1'>
-    <br/>
-    <input type='text' id='keyword2'>
-    <br/>
--->
+<form method='post' action='http://apis.daum.net/search/book'>
 </form>
 <script src="http://projectbs.github.io/bsJS/bsjs.0.3.js"></script>
 <script>
 bs( function(){
-var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/bsCORS.php'
-  , _pv1 = 'abcde'
-  , _pv2 = '오명운'
+//var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1.php'
+var _postTarget = 'http://api.bsplugin.com/corsproxy/dev_0.1/corsproxy0.1.php'
+  , data = {
+        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
+        'q' : '리눅스',
+        'output' : 'json',
+        'url' : document.forms[0].action,
+        'customheader' : 'CUSTOM_HEADER',
+        'method' : 'POST'
+    }
 ;
 
 bs.Dom( '<div></div>' ).S( 
@@ -48,56 +50,34 @@ bs.Dom( '<div></div>' ).S(
     'width', 300, // 스타일 지정
     'click', clearResult // 이벤트 등록
 );
+
 bs.Dom('<hr>').S( '<', 'body');
 bs.Dom('<span id="result"></span>').S( '<', 'body');
+
 function end(data) {
-//    console.log(data);
-//    document.getElementById('result').innerHTML=data;
     bs.Dom('#result').S('html', data);
 }
 
 function bsCORS() {
-//    console.log(document.forms[0].elements[0].value);
-//    console.log(document.forms[0].action);
 
     bs.post(end, _postTarget, 
-            'url', document.forms[0].action, 
-//            'p1', document.forms[0].elements[0].value,
-//            'p2', document.forms[0].elements[1].value);
-            'p1', _pv1,
-            'p2', _pv2);
-
-//    var xhr = getXHR();
-//     xhr.onreadystatechanged = handleStateChange;
-//     xhr.open("POST", 'http://hanmomhanda-apex-mint/bsCORS/bsCORS.php', true);
-//     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-//     xhr.send('p1=' + document.forms[0].elements[0].value + '&p2=' + document.forms[0].elements[1].value);
+        'apikey', 'DAUM_SEARCH_DEMO_APIKEY',
+        'q', '리눅스',
+        'output', 'json',
+        'url', document.forms[0].action,
+        'customheader', 'CUSTOM_HEADER',
+        'method', 'POST');
 }
 
 function pureCORS() {
     var xhr = getXHR()
-      , data
     ;
     xhr.onreadystatechange = function() {
         handleStateChange(xhr);
     };
     xhr.open("POST", _postTarget, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-//    xhr.setRequestHeader("bscors-real-target-url", document.forms[0].action);
-//    xhr.setRequestHeader("bscors-original-method", "REALMETHOD");
-//    xhr.setRequestHeader("Access-Control-Request-Method", "POST");
-//    xhr.setRequestHeader("Access-Control-Request-Headers", "x-hanmomhanda");
-//    xhr.send('url=' + document.forms[0].action + '&p1=' + _pv1 + '&p2=' + _pv2);
-//    xhr.send('p1=' + _pv1 + '&p2=' + _pv2);
-    data = {        
-        'p1' : _pv1,
-        'p2' : _pv2,
-        'url' : document.forms[0].action,
-        'customheader' : 'CUSTOM_HEADER',
-        'method' : 'POST'
-    };
     xhr.send( 'postdata='+JSON.stringify(data) );
-//    xhr.send('postdata='+data);
 }
 
 function directCORS() {
@@ -105,7 +85,7 @@ function directCORS() {
     xhr.onreadystatechange = function() { handleStateChange(xhr); };
     xhr.open("POST", document.forms[0].action, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
-    xhr.send('p1=' + _pv1 + '&p2=' + _pv2);
+    xhr.send( 'postdata='+JSON.stringify(data) );
 }
 
 function clearResult() {
