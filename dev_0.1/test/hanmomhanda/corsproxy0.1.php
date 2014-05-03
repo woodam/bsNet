@@ -22,7 +22,7 @@ function processCORS($svr, $post) {
 // 
 function setResponseHeaders($svr, $decodedObj) {
 
-    if ( strcasecmp($decodedObj->customheader, 'CUSTOM_HEADER')==0 ) {
+    if ( strcasecmp($decodedObj->customheader, 'X_BSJSCORS')==0 ) {
         header('Access-Control-Allow-Origin: ' . $svr['HTTP_ORIGIN']);
         header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");    
         header('Access-Control-Allow-Methods: POST, OPTIONS');     

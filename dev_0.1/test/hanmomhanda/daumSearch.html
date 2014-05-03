@@ -18,58 +18,61 @@ var _postTarget = 'http://api.bsplugin.com/corsproxy/dev_0.1/corsproxy0.1.php'
         'q' : '리눅스',
         'output' : 'json',
         'url' : document.forms[0].action,
-        'customheader' : 'CUSTOM_HEADER',
+        'customheader' : 'X_BSJSCORS',
         'method' : 'POST'
     }
 ;
 
 bs.Dom( '<div></div>' ).S( 
-    '<', 'body', // body를 부모로
-    'html', 'bsCORS', // html 입력
-    'width', 300, // 스타일 지정
-    'click', bsCORS // 이벤트 등록
+    '<', 'body',
+    'html', 'bsCORS',
+    'width', 300,
+    'click', bsCORS
 );
 
 bs.Dom( '<div></div>' ).S( 
-    '<', 'body', // body를 부모로
-    'html', 'pureCORS', // html 입력
-    'width', 300, // 스타일 지정
-    'click', pureCORS // 이벤트 등록
+    '<', 'body',
+    'html', 'pureCORS',
+    'width', 300,
+    'click', pureCORS
 );
     
 bs.Dom( '<div></div>' ).S( 
-    '<', 'body', // body를 부모로
-    'html', 'directCORS', // html 입력
-    'width', 300, // 스타일 지정
-    'click', directCORS // 이벤트 등록
+    '<', 'body',
+    'html', 'directXHR',
+    'width', 300,
+    'click', directXHR
 );
 
 bs.Dom( '<div></div>' ).S( 
-    '<', 'body', // body를 부모로
-    'html', 'ClearResult', // html 입력
-    'width', 300, // 스타일 지정
-    'click', clearResult // 이벤트 등록
+    '<', 'body', //
+    'html', 'ClearResult',
+    'width', 300,
+    'click', clearResult
 );
 
 bs.Dom('<hr>').S( '<', 'body');
 bs.Dom('<span id="result"></span>').S( '<', 'body');
 
-function end(data) {
-    bs.Dom('#result').S('html', data);
-}
 
-function bsCORS() {
+//////////
+// 순수 XHR로 구현
+//
+function bsCORS() { // 에러는 없는데 결과가 화면에 뿌려지지 않음
 
     bs.post(end, _postTarget, 
         'apikey', 'DAUM_SEARCH_DEMO_APIKEY',
         'q', '리눅스',
         'output', 'json',
         'url', document.forms[0].action,
-        'customheader', 'CUSTOM_HEADER',
+        'customheader', 'X_BSJSCORS',
         'method', 'POST');
 }
 
-function pureCORS() {
+//////////
+// 순수 XHR로 구현
+//
+function pureCORS() { 
     var xhr = getXHR()
     ;
     xhr.onreadystatechange = function() {
@@ -80,7 +83,10 @@ function pureCORS() {
     xhr.send( 'postdata='+JSON.stringify(data) );
 }
 
-function directCORS() {
+//////////
+// bsJScorsProxy를 통하지 않는 XHR 요청
+//
+function directXHR() {
     var xhr = getXHR();
     xhr.onreadystatechange = function() { handleStateChange(xhr); };
     xhr.open("POST", document.forms[0].action, true);
@@ -88,10 +94,16 @@ function directCORS() {
     xhr.send( 'postdata='+JSON.stringify(data) );
 }
 
+//////////
+// 결과 TEXT 지우기
+//
 function clearResult() {
     bs.Dom('#result').S('html', '');
 }
 
+//////////
+// pureCORS, directXHR의 callback 함수
+//
 function handleStateChange(xhr) {
     if (xhr.readyState == 4 ) {
         if (xhr.status == 200 ) {
@@ -101,6 +113,16 @@ function handleStateChange(xhr) {
     }
 }
 
+//////////
+// bsCORS의 callback 함수
+//
+function end(data) {
+    bs.Dom('#result').S('html', data);
+}
+
+//////////
+// XHR Factory
+//
 function getXHR() {
     if (window.ActiveXObject) {
         return new ActiveXObject("Microsoft.XMLHTTP");
