@@ -2,7 +2,8 @@
 processCORS($_SERVER, $_POST);
 
 //////////
-// CORS Requestor에게 결과 Hash를 JSON으로 encode하여 반환
+// CORS Request를 처리할 Response 헤더를 설정하고,
+// Real Target에서 받은 결과를 그대로 반환
 //
 function processCORS($svr, $post) {
     $decodedObj = json_decode($post['postdata']);
