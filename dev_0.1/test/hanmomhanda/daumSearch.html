@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-<form method='post' action='http://apis.daum.net/search/book'>
+<form method='post' action='http://apis.daum.net/socialpick/search'>
 </form>
 <script src="http://projectbs.github.io/bsJS/bsjs.0.3.js"></script>
 <script>
@@ -14,8 +14,9 @@ bs( function(){
 //var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1.php'
 var _postTarget = 'http://api.bsplugin.com/corsproxy/dev_0.1/corsproxy0.1.php'
   , data = {
-        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
-        'q' : '리눅스',
+//        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
+//        'q', '리눅스',
+        'category' : 'e',
         'output' : 'json',
         'url' : document.forms[0].action,
         'customheader' : 'X_BSJSCORS',
@@ -56,13 +57,14 @@ bs.Dom('<span id="result"></span>').S( '<', 'body');
 
 
 //////////
-// 순수 XHR로 구현
+// bs.post()로 구현
 //
 function bsCORS() { // 에러는 없는데 결과가 화면에 뿌려지지 않음
 
     bs.post(end, _postTarget, 
-        'apikey', 'DAUM_SEARCH_DEMO_APIKEY',
-        'q', '리눅스',
+//        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
+//        'q', '리눅스',
+        'category', 'e',
         'output', 'json',
         'url', document.forms[0].action,
         'customheader', 'X_BSJSCORS',
@@ -107,7 +109,7 @@ function clearResult() {
 function handleStateChange(xhr) {
     if (xhr.readyState == 4 ) {
         if (xhr.status == 200 ) {
-            console.dir(xhr);
+//            console.dir(xhr.responseText);
             end(xhr.responseText);
         }
     }
@@ -117,7 +119,9 @@ function handleStateChange(xhr) {
 // bsCORS의 callback 함수
 //
 function end(data) {
-    bs.Dom('#result').S('html', data);
+//    bs.Dom('#result').S('html', data);
+    var r = document.getElementById('result');
+    r.innerHTML = data;
 }
 
 //////////
