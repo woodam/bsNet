@@ -8,20 +8,20 @@
 <body>
 <form method='post' action='http://apis.daum.net/socialpick/search'>
 </form>
-<script src="http://projectbs.github.io/bsJS/bsjs.0.4.js"></script>
+<!--<script src="http://projectbs.github.io/bsJS/bsjs.0.4.js"></script>-->
+<script src="./bsjs.0.4.mod.js"></script>
 <script>
 bs( function(){
 //var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1.php'
 var _postTarget = 'http://api.bsplugin.com/corsproxy/dev_0.1/corsproxy0.1.php'
   , data = {
-//        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
-//        'q', '리눅스',
         'category' : 'e',
         'output' : 'json',
         'url' : document.forms[0].action,
         'customheader' : 'X_BSJSCORS',
         'method' : 'POST'
     }
+  , json_data = JSON.stringify(data)
 ;
 
 bs.Dom( '<div></div>' ).S( 
@@ -61,14 +61,8 @@ bs.Dom('<span id="result"></span>').S( '<', 'body');
 //
 function bsCORS() { // bs.post() 사용 시 end에 파라미터를 넘기는 방법을 모름
 
-    bs.post(end, _postTarget, 
-//        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
-//        'q', '리눅스',
-        'category', 'e',
-        'output', 'json',
-        'url', document.forms[0].action,
-        'customheader', 'X_BSJSCORS',
-        'method', 'POST');
+    bs.post(end, _postTarget,
+        'postdata', json_data);
 }
 
 //////////
@@ -83,7 +77,8 @@ function pureCORS() {
     xhr.open("POST", _postTarget, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");    
 xhr.setRequestHeader("ABCD", "ABCD"); // Preflight를 만들기 위해 사용
-    xhr.send( 'postdata='+JSON.stringify(data) );
+    xhr.send( 'postdata='+encodeURIComponent(json_data) );
+
 }
 
 //////////

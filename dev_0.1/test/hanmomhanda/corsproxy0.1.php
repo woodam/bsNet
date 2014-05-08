@@ -8,10 +8,12 @@ processCORS($_SERVER, $_REQUEST);
 //   bsJS의 요청이 아니면 Real Target에 요청도 하지 않고 반환값도 없음
 //
 function processCORS($svr, $req) {    
+
     $decodedObj = json_decode($req['postdata']);
+
     setResponseHeaders($svr, $decodedObj);
     if ( isBS($decodedObj) ) {
-        echo getResultFromTarget($svr, $decodedObj);    
+        echo getResultFromTarget($svr, $decodedObj);
     }    
 }
 
@@ -36,7 +38,7 @@ function setResponseHeaders($svr, $decodedObj) {
     header('Access-Control-Allow-Methods: POST, OPTIONS');        
     header('Access-Control-Allow-Headers: Cache-Control, Content-Type, ABCD');       
     header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");        
-    header('Access-Control-Max-Age: 60');
+    header('Access-Control-Max-Age: 5');
 }
 
 //////////
@@ -132,8 +134,27 @@ function showJSONdata($post) {
     global $_br;
     echo '%%% SHOW JSON %%%' . $_br;
     echo 'JSON Parameter : ' . $_br;
-    echo $post['postdata'] . $_br;
+    print_r($post['postdata']);
+    echo $_br;
     echo '%%% SHOW JSON %%%' . $_br;
+}
+
+function showReqData($req) {
+    global $_br;
+    echo '%%% SHOW REQ %%%' . $_br;
+    echo 'REQ : ' . $_br;
+    print_r($req);
+    echo $_br;
+    echo '%%% SHOW REQ %%%' . $_br;
+}
+
+function showPostData($post) {
+    global $_br;
+    echo '%%% SHOW POST %%%' . $_br;
+    echo 'POST : ' . $_br;
+    print_r($post);
+    echo $_br;
+    echo '%%% SHOW POST %%%' . $_br;
 }
 
 function showURLinJSON($post) {
