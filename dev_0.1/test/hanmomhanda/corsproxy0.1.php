@@ -101,7 +101,6 @@ function getRequestHeaders($svr) {
 // 아래는 디버그용 함수
 //////////////////////////////
 
-
 function showServerInfo($svr) {
     global $_br;
     echo '##### bsCORS.php $_SERVER #####' . $_br;
