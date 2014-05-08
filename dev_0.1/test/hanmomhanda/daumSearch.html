@@ -60,6 +60,7 @@ bs.Dom('<span id="result"></span>').S( '<', 'body');
 // bs.post()로 구현
 //
 function bsCORS() { // bs.post() 사용 시 end에 파라미터를 넘기는 방법을 모름
+
     bs.post(end, _postTarget, 
 //        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
 //        'q', '리눅스',
@@ -119,7 +120,7 @@ function handleStateChange(xhr) {
 // bsCORS의 callback 함수
 //
 function end(data) {
-//    console.log(data);
+    console.log(data);
     bs.Dom('#result').S('html', data);
 //    document.getElementById('result').innerHTML = data;
 }
