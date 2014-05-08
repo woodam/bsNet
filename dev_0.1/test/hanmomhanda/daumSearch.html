@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+    <title>TODO supply a title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<form method='post' action='http://apis.daum.net/socialpick/search'>
+</form>
+<script src="http://projectbs.github.io/bsJS/bsjs.0.4.js"></script>
+<script>
+bs( function(){
+var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1.php'
+//var _postTarget = 'http://api.bsplugin.com/corsproxy/dev_0.1/corsproxy0.1.php'
+  , data = {
+//        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
+//        'q', '리눅스',
+        'category' : 'e',
+        'output' : 'json',
+        'url' : document.forms[0].action,
+        'customheader' : 'X_BSJSCORS',
+        'method' : 'POST'
+    }
+;
+
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body',
+    'html', 'bsCORS',
+    'width', 300,
+    'click', bsCORS
+);
+
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body',
+    'html', 'pureCORS',
+    'width', 300,
+    'click', pureCORS
+);
+    
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body',
+    'html', 'directXHR',
+    'width', 300,
+    'click', directXHR
+);
+
+bs.Dom( '<div></div>' ).S( 
+    '<', 'body', //
+    'html', 'ClearResult',
+    'width', 300,
+    'click', clearResult
+);
+
+bs.Dom('<hr>').S( '<', 'body');
+bs.Dom('<span id="result"></span>').S( '<', 'body');
+
+
+//////////
+// bs.post()로 구현
+//
+function bsCORS() { // bs.post() 사용 시 end에 파라미터를 넘기는 방법을 모름
+
+    bs.post(end, _postTarget, 
+//        'apikey' : 'DAUM_SEARCH_DEMO_APIKEY',
+//        'q', '리눅스',
+        'category', 'e',
+        'output', 'json',
+        'url', document.forms[0].action,
+        'customheader', 'X_BSJSCORS',
+        'method', 'POST');
+}
+
+//////////
+// 순수 XHR로 구현
+//
+function pureCORS() { 
+    var xhr = getXHR()
+    ;
+    xhr.onreadystatechange = function() {
+        handleStateChange(xhr);
+    };
+    xhr.open("POST", _postTarget, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");    
+xhr.setRequestHeader("ABCD", "ABCD"); // Preflight를 만들기 위해 사용
+    xhr.send( 'postdata='+JSON.stringify(data) );
+}
+
+//////////
+// bsJScorsProxy를 통하지 않는 XHR 요청
+//
+function directXHR() {
+    var xhr = getXHR();
+    xhr.onreadystatechange = function() { handleStateChange(xhr); };
+    xhr.open("POST", document.forms[0].action, true);
+    xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");
+    xhr.send( 'postdata='+JSON.stringify(data) );
+}
+
+//////////
+// 결과 TEXT 지우기
+//
+function clearResult() {
+    bs.Dom('#result').S('html', '');
+}
+
+//////////
+// pureCORS, directXHR의 callback 함수
+//
+function handleStateChange(xhr) {
+    if (xhr.readyState == 4 ) {
+        if (xhr.status == 200 ) {
+//            console.dir(xhr.responseText);
+            end(xhr.responseText);
+        }
+    }
+}
+
+//////////
+// bsCORS의 callback 함수
+//
+function end(data) {
+    console.log(data);
+    bs.Dom('#result').S('html', data);
+//    document.getElementById('result').innerHTML = data;
+}
+
+//////////
+// XHR Factory
+//
+function getXHR() {
+    if (window.ActiveXObject) {
+        return new ActiveXObject("Microsoft.XMLHTTP");
+    } else if (window.XMLHttpRequest) {
+        return new XMLHttpRequest();
+    }
+}
+
+} );
+</script>
+</body>
+</html>
