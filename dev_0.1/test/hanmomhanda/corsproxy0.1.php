@@ -12,16 +12,17 @@ function processCORS($svr, $req) {
     $decodedObj = json_decode($req['postdata']);
 
     setResponseHeaders($svr, $decodedObj);
-    if ( isBS($decodedObj) ) {
+    if ( isSafe($svr, $decodedObj) ) {
         echo getResultFromTarget($svr, $decodedObj);
     }    
 }
 
 //////////
-// 요청이 BS요청인지 확인
+// 요청이 안전한 요청인지 확인
 // 
-function isBS($decodedObj) {
-    return (strcasecmp($decodedObj->customheader, 'X_BSJSCORS')==0);
+function isSafe($svr, $decodedObj) {
+    return ( (strcasecmp($decodedObj->customheader, 'X_BSJSCORS')==0) &&
+             $svr['HTTP_HOST']==$svr['SERVER_NAME'] );
 }
 
 //////////
@@ -57,7 +58,7 @@ function getResultFromTarget($svr, $decodedObj) {
     if ( strcasecmp($method, 'post') == 0 ) {
         curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query(getRealUserDataArray($decodedObj)) );    
     }    
-    curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr, $decodedObj));
+    curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr));
     $t1 = curl_exec($t0);
     curl_close($t0);
 
@@ -84,17 +85,17 @@ function getRealUserDataArray($decodedObj) {
 //////////
 // CORS requestor의 실제 정보를 추출하여 배열로 반환
 //
-function getRequestHeaders($svr, $decodedObj) {
+function getRequestHeaders($svr) {
     
+    $h_arr = array('User-Agent: ' . $svr['HTTP_USER_AGENT']);    
+    /*
     $url = $decodedObj -> url;
     $id = '://';
     $startPos = strpos($url, $id)+strlen($id);
     $realTargetHost = substr($url, $startPos, strpos($url, '/', $startPos)-$startPos);
-    
-    $h_arr = array('Host: ' . $realTargetHost);
-    array_push($h_arr, 'User-Agent: ' . $svr['HTTP_USER_AGENT']);
-    //	array_push($h_arr, 'Origin: ' . $svr['HTTP_ORIGIN']);
-    /*
+
+    array_push($h_arr, 'Host: ' . $realTargetHost);
+    array_push($h_arr, 'Origin: ' . $svr['HTTP_ORIGIN']);
             $ac_req_method = $svr['HTTP_ACCESS_CONTROL_REQUEST_METHOD'];
             isset($ac_req_method) ? array_push($h_arr, 'Access-Control-Request-Method: ' . $ac_req_method) : 0;
 
