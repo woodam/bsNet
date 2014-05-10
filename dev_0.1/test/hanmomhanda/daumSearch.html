@@ -8,8 +8,8 @@
 <body>
 <form method='post' action='http://apis.daum.net/socialpick/search'>
 </form>
-<!--<script src="http://projectbs.github.io/bsJS/bsjs.0.4.js"></script>-->
-<script src="./bsjs.0.4.mod.js"></script>
+<script src="http://projectbs.github.io/bsJS/bsjs.0.4.js"></script>
+<!--<script src="./bsjs.0.4.mod.js"></script>-->
 <script>
 bs( function(){
 //var _postTarget = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1.php'
@@ -76,6 +76,7 @@ function pureCORS() {
     };
     xhr.open("POST", _postTarget, true);
     xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8");    
+    xhr.withCredentials = true;
 xhr.setRequestHeader("ABCD", "ABCD"); // Preflight를 만들기 위해 사용
     xhr.send( 'postdata='+encodeURIComponent(json_data) );
 
