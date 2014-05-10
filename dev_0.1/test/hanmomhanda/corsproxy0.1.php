@@ -57,7 +57,7 @@ function getResultFromTarget($svr, $decodedObj) {
     if ( strcasecmp($method, 'post') == 0 ) {
         curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query(getRealUserDataArray($decodedObj)) );    
     }    
-    curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr));
+    curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr, $decodedObj));
     $t1 = curl_exec($t0);
     curl_close($t0);
 
@@ -82,11 +82,16 @@ function getRealUserDataArray($decodedObj) {
 
 
 //////////
-// CORS requestor의 실제 헤더 정보를 추출하여 배열로 반환
+// CORS requestor의 실제 정보를 추출하여 배열로 반환
 //
-function getRequestHeaders($svr) {
-
-    $h_arr = array('Host: ' . $svr['HTTP_HOST']);
+function getRequestHeaders($svr, $decodedObj) {
+    
+    $url = $decodedObj -> url;
+    $id = '://';
+    $startPos = strpos($url, $id)+strlen($id);
+    $realTargetHost = substr($url, $startPos, strpos($url, '/', $startPos)-$startPos);
+    
+    $h_arr = array('Host: ' . $realTargetHost);
     array_push($h_arr, 'User-Agent: ' . $svr['HTTP_USER_AGENT']);
     //	array_push($h_arr, 'Origin: ' . $svr['HTTP_ORIGIN']);
     /*
