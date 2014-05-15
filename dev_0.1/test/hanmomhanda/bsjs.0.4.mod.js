@@ -112,18 +112,18 @@ detectDOM = function( W, detect ){
 		transition:stylePrefix + 'Transition' in bStyle || 'transition' in bStyle, transform3D:transform3D, keyframe:keyframe,
 		transform:stylePrefix + 'Transform' in bStyle || 'transform' in bStyle,
 		//html5
-		canvas:c ? 1 : 0, canvasText:c && c.getContext('2d').fillText,
+		canvas:c ? 1 : 0, canvasText:c && c['getContext'] && c.getContext('2d').fillText,
 		audio:a ? 1 : 0,
-		audioMp3:a && a.canPlayType('audio/mpeg;').indexOf('no') < 0 ? 1 : 0,
-		audioOgg:a && a.canPlayType('audio/ogg;').indexOf('no') < 0 ? 1 : 0,
-		audioWav:a && a.canPlayType('audio/wav;').indexOf('no') < 0 ? 1 : 0,
-		audioMp4:a && a.canPlayType('audio/mp4;').indexOf('no') < 0 ? 1 : 0,
+		audioMp3:a && a['canPlayType'] && a.canPlayType('audio/mpeg;').indexOf('no') < 0 ? 1 : 0,
+		audioOgg:a && a['canPlayType'] && a.canPlayType('audio/ogg;').indexOf('no') < 0 ? 1 : 0,
+		audioWav:a && a['canPlayType'] && a.canPlayType('audio/wav;').indexOf('no') < 0 ? 1 : 0,
+		audioMp4:a && a['canPlayType'] && a.canPlayType('audio/mp4;').indexOf('no') < 0 ? 1 : 0,
 		video:v ? 1 : 0,
 		videoCaption:'track' in doc.createElement('track') ? 1 : 0,
 		videoPoster:v && 'poster' in v ? 1 : 0,
-		videoWebm:v && v.canPlayType( 'video/webm; codecs="vp8,mp4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
-		videH264:v && v.canPlayType( 'video/mp4; codecs="avc1.42E01E,m4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
-		videoTeora:v && v.canPlayType( 'video/ogg; codecs="theora,vorbis"' ).indexOf( 'no' ) == -1 ? 1 : 0,
+		videoWebm:v && v['canPlayType'] && v.canPlayType( 'video/webm; codecs="vp8,mp4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
+		videH264:v && v['canPlayType'] && v.canPlayType( 'video/mp4; codecs="avc1.42E01E,m4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
+		videoTeora:v && v['canPlayType'] && v.canPlayType( 'video/ogg; codecs="theora,vorbis"' ).indexOf( 'no' ) == -1 ? 1 : 0,
 		local:W.localStorage && 'setItem' in localStorage,
 		geo:navigator.geolocation, worker:W.Worker, file:W.FileReader, message:W.postMessage,
 		history:'pushState' in history, offline:W.applicationCache,
@@ -322,6 +322,12 @@ CORE:
 	httpHeader = {}, httpH = [],
 	http = function( type, end, url, arg ){
 		var xhr, timeId, i, j, k;
+        var tkn='://', cpurl = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/hanmomhanda/corsproxy0.1_1.php', protocol;
+        if(url.slice(0,4)=='http' && url.substring(url.indexOf(tkn)+tkn.length).slice(0, document.domain.length)==document.domain < 0) {
+            protocol = {'url' : url = url.substring(0, url.indexOf('?')),'customheader' : 'X_BSJSCORS','method' : 'POST'};
+            arg+='&postdata='+encodeURIComponent(JSON.stringify(protocol));
+            url = cpurl+'?bsNC=' + bs.rand( 1000, 9999 );
+        }
 		xhr = rq();
 		if( end ) xhr.onreadystatechange = function(){
 			var text, status;
@@ -339,13 +345,11 @@ CORE:
 			xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
 			if( httpHeader[k] ) httpH[httpH.length] = k;
 		}
-		for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpH[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
-xhr.setRequestHeader('ABCD', 'ABCD');
-xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded;charset=utf-8');
-		xhr.send(param(arg));
+		for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
+		xhr.send(arg);
 		if( !end ) return i = xhr.responseText, rq(xhr), i;
 	},
-	mk = function(m){return function( end, U ){return http( m, end, url(U), arguments );};},
+	mk = function(m){return function( end, U ){return http( m, end, url(U), param(arguments) );};},
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', function( end, U ){return http( 'GET', end, url( U, arguments ) );} ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
 })(trim);
@@ -549,7 +553,7 @@ fn( 'ev', (function(){
 						}
 						W.scrollTo( arguments[0], arguments[1] );
 					};
-				})( W, doc, detect.root, doc.documentElement ),
+				})( W, doc, detect.root, doc.documentElement )
 			},
 			win.sizer = (function( W, doc ){
 				var t0 = {w:0, h:0}, t1, size, docEl, docBody;
@@ -1013,10 +1017,10 @@ fn( 'ev', (function(){
 		} ),
 		fn( 'css', (function cssLoader(trim){
 			var r = /^[0-9.-]+$/, parser = function(data){
-				var t0, t1, t2, c, i, j, k, v, m, sel, val;
+				var t0, t1, t2, t3, c, i, j, k, v, m, sel, val;
 				t2 = [], t0 = data.split('}');
 				for( i = 0, j = t0.length ; i < j ; i++ ){
-					if( t0[i] ){
+					if( t0[i].replace( trim, '' ) ){
 						t1 = t0[i], sel = t1.substring( 0, m = t1.indexOf('{') ).replace( trim, '' ), val = t1.substr( m + 1 );
 						if( sel.indexOf('@') == -1 ){
 							c = bs.Css(sel), t1 = val.split(';'), k = t1.length, t2.length = 0;
@@ -1234,9 +1238,9 @@ fn( 'ev', (function(){
 	EXT = function(){
 		var fn;
 		NETWORK:
-//		fn = bs.header,
-//		fn( 'Cache-Control', 'no-cache' ),
-//		fn( 'Content-Type', function(type){return ( type == 'GET' ? 'text/plain' : 'application/x-www-form-urlencoded' ) + '; charset=UTF-8';} );
+		fn = bs.header,
+		fn( 'Cache-Control', 'no-cache' ),
+		fn( 'Content-Type', function(type){return ( type == 'GET' ? 'text/plain' : 'application/x-www-form-urlencoded' ) + '; charset=UTF-8';} );
 		STYLE:
 		fn = bs.Style.fn;
 		fn( 'nopx', 'opacity', 1 ), fn( 'nopx', 'zIndex', 1 ),
