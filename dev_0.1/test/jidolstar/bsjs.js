@@ -26,7 +26,7 @@ detectWindow = function( W, detect ){
 		if( agent.indexOf( i = 'chrome' ) < 0 && agent.indexOf( i = 'crios' ) < 0 ) return;
 		return browser = 'chrome', bv = parseFloat( ( i == 'chrome' ? /chrome\/([\d]+)/ : /crios\/([\d]+)/ ).exec(agent)[1] );
 	},
-	firefox = function(){return agent.indexOf('firefox') < 0 ? 0 : browser = 'firefox', bv = parseFloat( /firefox\/([\d]+)/.exec(agent)[1] );},
+    firefox = function(){return agent.indexOf('firefox') < 0 ? 0 : browser = 'firefox', bv = /firefox\/([\d]+)/.exec(agent), bv==null ? 0: parseFloat(/firefox\/([\d]+)/.exec(agent)[1]);},
 	safari = function(){return agent.indexOf('safari') < 0 ? 0 : browser = 'safari', bv = parseFloat(/safari\/([\d]+)/.exec(agent)[1]);},
 	opera = function(){return agent.indexOf('opera') < 0 ? 0 : browser = 'opera', bv = parseFloat( /version\/([\d]+)/.exec(agent)[1] );},
 	naver = function(){return agent.indexOf( 'naver' ) < 0 ? 0 : browser = 'naver';};
@@ -36,13 +36,13 @@ detectWindow = function( W, detect ){
 		browser = os = 'android';
 		if( agent.indexOf('mobile') == -1 ) browser += 'Tablet', device = 'tablet';
 		else device = 'mobile';
-		if( i = /android ([\d.]+)/.exec(agent) ) i = i[1].split('.'), osVersion = parseFloat( i[0] + '.' + i[1] );
+		if( i = /android ([\d.]+)/.exec(agent) ) i = i[1].split('.'), osv = parseFloat( i[0] + '.' + i[1] );
 		else osv = 0;
 		if( i = /safari\/([\d.]+)/.exec(agent) ) bv = parseFloat(i[1]);
 		naver() || chrome() || firefox() || opera();
 	}else if( agent.indexOf( i = 'ipad' ) > -1 || agent.indexOf( i = 'iphone' ) > -1 ){
 		device = i == 'ipad' ? 'tablet' : 'mobile', browser = os = i;
-		if( i = /os ([\d_]+)/.exec(agent) ) i = i[1].split('_'), osVersion = parseFloat( i[0] + '.' + i[1] );
+		if( i = /os ([\d_]+)/.exec(agent) ) i = i[1].split('_'), osv = parseFloat( i[0] + '.' + i[1] );
 		else osv = 0;
 		if( i = /mobile\/([\S]+)/.exec(agent) ) bv = parseFloat(i[1]);
 		naver() || chrome() || firefox() || opera();
@@ -92,7 +92,7 @@ detectDOM = function( W, detect ){
 		break;
 	case'firefox': cssPrefix = '-moz-', stylePrefix = 'Moz'; transform3D = 1; break;
 	case'opera': cssPrefix = '-o-', stylePrefix = 'O'; transform3D = 1; break;
-	default: cssPrefix = '-webkit-', stylePrefix = 'webkit'; transform3D = detect.os == 'android' ? ( detect.osVersion < 4 ? 0 : 1 ) : 1;
+	default: cssPrefix = '-webkit-', stylePrefix = 'webkit'; transform3D = detect.os == 'android' ? ( detect.osVer < 4 ? 0 : 1 ) : 1;
 	}
 	if( keyframe ){
 		if( keyframe.WEBKIT_KEYFRAME_RULE ) keyframe = '-webkit-keyframes';
@@ -166,7 +166,7 @@ if( !W['JSON'] ) W['JSON'] = {
 if( !W['console'] ) W['console'] = {log:none};
 CORE:
 (function(trim){
-	var rc = 0, rand, template, a = document.createElement('a'),
+	var rc = 0, rand, template, a,
 	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {},
 	url, paramH, paramP, param, xhr, rqPool, rq, httpHeader, httpH, http;
 	BASE:
@@ -307,83 +307,63 @@ CORE:
 	paramH = [], paramP = [],
 	param = function(arg){
 		var i, j, k;
-		if( !arg || ( j = arg.length ) < 4 ) return '';
+                if( !arg || ( j = arg.length ) < 4 ) return '';
 		paramH.length = paramP.length = 0, i = 2;
 		while( i < j )
 			if ( arg[i].charAt(0) == '@' ) paramH[paramH.length] = arg[i++].substr(1), paramH[paramH.length] = arg[i++];
 			else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++] ) + '=' + encodeURIComponent( arg[i++] );
 			else k = encodeURIComponent( arg[i++] );
-		return k || paramP.join('&');
+                return k || paramP.join('&');
 	},
 	url = function( url, arg ){
 		var t0 = url.split('#');
 		return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + '&' + param(arg) + ( t0[1] ? '#' + t0[1] : '' );
 	},
 	httpHeader = {}, httpH = [],
-	http = function( type, end, url, arg ){
-		var xhr, timeId, i, j, k;
-                //1. XDomainRequest는 동기통신을 지원하지 않음
-                //2. preflightedRequest를 꼭 우리 proxy서버만 써야 하는가? 어떤 사람은 자신들 proxy를 쓰고 싶을 수 있을 것 아닌가?
-                //3. XDomainRequest도 지원하지 않는다면 어떻게 처리해야 하나? 그냥 err?
-                a.href = url;
-                if( location.hostname != a.hostname || location.protocol != a.protocol ) {
-                    if( W['XMLHttpRequest'] ) {
-                        xhr = new XMLHttpRequest();
-                        if( end ) xhr.onreadystatechange = function(){
-                            var text, status;
-                            if( xhr.readyState != 4 || timeId < 0 ) return;
-                            clearTimeout(timeId), timeId = -1,
-                            text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
-                            status = text ? xhr.getAllResponseHeaders() : xhr.status,
-                            rq(xhr), end( text, status );
-                        }, timeId = setTimeout( function(){
-                                if( timeId > -1 ) timeId = -1, rq(xhr), end( null, 'timeout' );
-                        }, timeout );
-                        url = 'http://bsplugin.com/corsproxy/index.php';
-                        
-                        xhr.open( 'POST', url, end ? true : false );
-                        httpH.length = i = 0, j = paramH.length;
-                        while( i < j ){
-                                xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
-                                if( httpHeader[k] ) httpH[httpH.length] = k;
-                        }
-                        xhr.setRequestHeader( 'Content-Type', 'corsproxy' );
-                        xhr.setRequestHeader( 'bsplugin-corsproxy', 'corsproxy' );
-                        for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpH[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
-                        xhr.send(param(arg));
-                        if( !end ) return i = xhr.responseText, rq(xhr), i;
+	http = function( type, end, U, arg ){
+		var xhr, timeId, isCors, i, j, k, l;
+                if( !a ) a = document.createElement('a');
+                a.href = U, isCors = location.hostname == a.hostname && location.protocol == a.protocol ? false : true;
+                if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
+                if( isCors ) {
+                    arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg);
+                    U = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/corsproxy0.1.php';
+                    //U = 'http://api.bsplugin.com/corsproxy/corsproxy0.1.php';
+                } 
+		xhr = rq();
+		if( end ) xhr.onreadystatechange = function(){
+			var text, status;
+			if( xhr.readyState != 4 || timeId < 0 ) return;
+			clearTimeout(timeId), timeId = -1,
+			text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
+			status = text ? xhr.getAllResponseHeaders() : xhr.status,
+			rq(xhr), end( text, status );
+		}, timeId = setTimeout( function(){
+			if( timeId > -1 ) timeId = -1, rq(xhr), end( null, 'timeout' );
+		}, timeout );
+		xhr.open( isCors ? 'POST' : type, U, end ? true : false ),
+		httpH.length = i = 0, j = paramH.length;
+                if( isCors ) {
+                    l = '';
+                    while( i < j ){
+                            l += encodeURIComponent( k = paramH[i++] ) + '=' + encodeURIComponent( paramH[i++] ) + '&';
+                            if( httpHeader[k] ) httpH[httpH.length] = k;
                     }
-                    else if (typeof XDomainRequest != "undefined") { 
-                        if( !end ) { err(5002); return; }
-                        xhr = new XDomainRequest(), xhr.open( type, url );
-                    } else {
-                        err(5001); return;
-                    }
+                    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
+                    arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
+                    xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
                 } else {
-                    xhr = rq();
-                    if( end ) xhr.onreadystatechange = function(){
-                            var text, status;
-                            if( xhr.readyState != 4 || timeId < 0 ) return;
-                            clearTimeout(timeId), timeId = -1,
-                            text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
-                            status = text ? xhr.getAllResponseHeaders() : xhr.status,
-                            rq(xhr), end( text, status );
-                    }, timeId = setTimeout( function(){
-                            if( timeId > -1 ) timeId = -1, rq(xhr), end( null, 'timeout' );
-                    }, timeout );
-                    xhr.open( type, url, end ? true : false ),
-                    httpH.length = i = 0, j = paramH.length;
                     while( i < j ){
                             xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
                             if( httpHeader[k] ) httpH[httpH.length] = k;
                     }
-                    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpH[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
-                    xhr.send(param(arg));
-                    if( !end ) return i = xhr.responseText, rq(xhr), i;
+                    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
                 }
+		xhr.send(arg);
+		if( !end ) return i = xhr.responseText, rq(xhr), i;
 	},
-	mk = function(m){return function( end, U ){return http( m, end, url(U), arguments );};},
-	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', function( end, U ){return http( 'GET', end, url( U, arguments ) );} ),
+	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
+	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
 })(trim);
 PLUGIN:
@@ -503,6 +483,7 @@ fn( 'ev', (function(){
 				if( c ) do if( c == p ) return 1; while( c = c.parentNode )
 				return 0;
 			}, docel=document.documentElement, page, layerX, layerY;
+
 			detect.browser == 'ie' && detect.browserVer < 9  ? ( layerX = 'offsetX', layerY = 'offsetY' ) : ( page = 1, layerX = 'layerX', layerY = 'layerY' ),
 			clsfn.fn = function( k, v ){attrs[k] = 2, eName[k] = v;},
 			fn.key = function(k){return this.keyCode == keycode[k];},
@@ -513,18 +494,18 @@ fn( 'ev', (function(){
 			fn.isRollover = function(){return !isChild( this, e.event.fromElement || e.event.relatedTarget );},
 			fn.isRollout = function(){return !isChild( this, e.event.toElement || e.event.explicitOriginalTarget );},
 			fn.on = function( type, group, context, method, arg ){
-				type = eName[type];
-				this['+']( this.isCapture, type, group, context, method, arg, 2 ), this._on(type);},
+				type = eName[type] || ( eName[type] = type );
+				this['+']( false, type, group, context, method, arg, 2 ), this._on(type);},
 			fn.off = function( type, group ){
-				type = eName[type];
-				if( !this['-']( this.isCapture, type, group ) ) fn._off(type);
+				type = eName[type] || ( eName[type] = type );
+				if( !this['-']( false, type, group ) ) fn._off(type);
 			},
 			fn._on = W['addEventListener'] ? function(k){this.dom.addEventListener( k, this.handleEvent, this.isCapture );} :
 				W['attachEvent'] ? function(k){this.dom.attachEvent( 'on' + k, this.handleEvent );} : function(k){this.dom['on' + k] = this.handleEvent;},
 			fn._off = W['addEventListener'] ? function(k){this.dom.removeEventListener( k, this.handleEvent, this.isCapture );} :
 				W['attachEvent'] ? function(k){this.dom.detachEvent( 'on' + k, this.handleEvent );} : function(k){this.dom['on' + k] = null;},
 			fn.init = function(d){
-				var self = this, trim = bs.trim;
+				var self = this, t = trim;
 				this.dom = d, this.isCapture = false, this.handleEvent = function(e){
 					var e = self.event = e || event, type = self.type = e.type, typeCat = evCat[type], t0, t1, i, X, Y;
 					if( typeCat ){ 
@@ -547,50 +528,29 @@ fn( 'ev', (function(){
 							if( typeCat == 3 ) self.mx = X - self.$x, self.my = Y - self.$y, self.$x = X, self.$y = Y;
 						}
 					}
-					if( d.value ) self.value = trim(d.value);	
+					if( d.value ) self.value = d.value.replace( t, '' );	
 					self.keyName = keyName[self.keyCode = e.keyCode],
-					self['~']( 'bubbles' in e ? e.bubbles ? false : true : false, type );
+					self['~']( false, type );
 				};
 			};
 		} ),
 		bs.obj( 'WIN', (function(){
-			var win, hash, wdata = {}, ddata = {};
-			hash = function(v){
-				var t0, old, w, h;
-				ev( W ), t0 = hash.listener;
-				if( v ){
-					t0[t0.length] = typeof v == 'function' ? {f:v, c:W, a:[W.bsE]} :
-						v.splice ? {f:v[1], c:v[0], a:( t1 = v.slice(1), t1[0] = W.bsE, t1 )} :
-						v[e] ? {f:v[e], c:v, a:[W.bsE]} : bs.err(11);
-					if( !hash.id ){
-						old = location.hash;
-						hash.id = setInterval( function(){
-							var e, t1, i, j;
-							if( old != location.hash ){
-								e = W.bsE, e.type = 'hashchange', old = location.hash, i = 0, j = t0.length;
-								while( i < j ){
-									e.stop = 0, t1 = t0[i++];
-									if( !t1.disable ) t1.f.apply( t1.c, t1.a );
-									if( e.stop ) break;
-								}
-							}
-						}, 1 );
-					}
-				}else{
-					t0.length = 0;
-					clearInterval(hash.id), hash.id = null;
-				}
-			},
-			hash.listener = [],
+			var win, wdata = {}, ddata = {}, ev = {};
 			win = {
+				ev:function( k, v ){ev[k] ? err( 2401, k ) : ev[k] = v;},
 				on:function( k, v, isDoc ){
-					var data, t0, t1, k, g, m, a, d;
+					var data, t0, t1, k, g, c, m, a, d;
 					( isDoc || k.substr(0,3) == 'key' ) ? ( data = ddata, d = doc ) : ( data = wdata, d = W );
-					if( k == 'hashchange' && !'onhashchange' in W ) return hash(v);
-					if( k == 'orientationchange' && !'onorientationchange' in W ) k = 'resize';
+					if( 'on' + k in d || k.indexOf(':') > -1 ) attrs[k] = 2;
+					else return err( 4001, k );
 					if( !( t0 = data.BSdomE ) ) data.BSdomE = t0 = bs.ev.dom(), t0.init(d);
-					g = ( t1 = k.indexOf(':') ) > -1 ? ( k = k.substring( 0, t1 ), k.substr( t1 + 1 ) ) : '',
-					v ? t0.on( false, k, g, v.splice ? ( m = v[1], a = v, v[0] || d ) : v[k] ? ( m = v[k], v ) : ( m = v, d ), m, a ) : t0.off( false, k, g );
+					g = ( t1 = k.indexOf(':') ) > -1 ? ( k = k.substring( 0, t1 ), k.substr( t1 + 1 ) ) : '';
+					if( v ) v.splice ? ( m = v[1], a = v, c = v[0] || d ) : v[k] ? ( m = v[k], c = v ) : ( m = v, c = d );
+					if( t1 = ev[k] ){
+						if( typeof t1 == 'function' ) return t1( t0, k, g, c, m, a );
+						k = t1;
+					}
+					v ? t0.on( k, g, c, m, a ) : t0.off( k, g );
 				},
 				is:function(sel){
 					var t0 = query(sel);
@@ -610,14 +570,14 @@ fn( 'ev', (function(){
 			},
 			win.sizer = (function( W, doc ){
 				var t0 = {w:0, h:0}, t1, size, docEl, docBody;
-				win.size = size = W['innerHeight'] === undefined ? (
+				size = W['innerHeight'] === undefined ? (
 					docEl = doc.documentElement, docBody = doc.body, t1 = {w:'clientWidth', h:'clientHeight'}, t1.width = t1.w, t1.height = t1.h,
 					function(k){return k = t1[k] ? docEl[k] || docBody[k] : ( t0.w = docEl[t1.w] || docBody[t1.w], t0.h = docEl[t1.h] || docBody[t1.h], t0 );}
 				) : ( t1 = {w:'innerWidth', h:'innerHeight'}, t1.width = t1.w, t1.height = t1.h,
 					function(k){return k = t1[k] ? W[k] : ( t0.w = W[t1.w], t0.h = W[t1.h], t0 );}
 				);
 				return function(end){
-					var f = function(){win.size(), end( t0.w, t0.h );};
+					var f = function(){size(), end( t0.w, t0.h );};
 					win.on( 'resize', f );
 					if( 'onorientationchange' in W ) win.on( 'orientationchange', f );
 					f();
@@ -724,8 +684,8 @@ fn( 'ev', (function(){
 					return k == undefined ? data[t0] : k == null ? ( delete data[el.getAttribute('data-bs')], el.removeAttribute('data-bs') ) : v == undefined ? data[t0][k] : v === null ? delete data[t0][k] : ( data[t0][k] = v );
 				};
 			})(),
-			clsfn.fn = function( k, v ){attrs[k] = attrs[k] ? err( 10001, k ) : v;},
-			clsfn.first = function( k, v ){first[k] = first[k] ? err( 10001, k ) : v;},
+			clsfn.fn = function( k, v ){attrs[k] = attrs[k] ? err( 2300, k ) : v;},
+			clsfn.first = function( k, v ){first[k] = first[k] ? err( 2301, k ) : v;},
 			clsfn.del = del = (function( domData, ev ){
 				var m = {'object':1, 'function':1};
 				return function(target){
@@ -734,7 +694,7 @@ fn( 'ev', (function(){
 						t0 = target[i], t0.parentNode.removeChild(t0);
 						if( t0.nodeType == 3 ) continue;
 						if( data = t0.getAttribute('data-bs') ){
-							if( t1 = data.BSdomE ) data.BSdomE = t1.dom = t1.handleEvent = null, ev(t1), console.log('aaa');
+							if( t1 = data.BSdomE ) data.BSdomE = t1.dom = t1.handleEvent = null, ev(t1);
 							domData( t0, null );
 						}
 						j = t0.attributes.length;
@@ -784,23 +744,240 @@ fn( 'ev', (function(){
 					return target.innerHTML || target;
 				};
 			})(doc),
-			clsfn.query = (function(doc){
-				var c;
-				if( doc.querySelectorAll ) return function(sel){return doc.querySelectorAll(sel);};
-				else return c = {}, function(sel){
-					var t0, i;
-					if( ( t0 = sel.charAt(0) ) == '#' ){
-						if( c[0] = doc.getElementById(sel.substr(1)) ) return c.length = 1, c;
-						return null;
+			clsfn.query = (function( doc, trim ){
+				var compare = (function(){
+					var r0 = /"|'/g, i, j,//"
+					mT0 = {'~':1, '|':1, '!':1, '^':1, '$':1, '*':1},
+					mTag = {'first-of-type':1, 'last-of-type':1, 'only-of-type':1},
+					enabled = {INPUT:1, BUTTON:1, SELECT:1, OPTION:1, TEXTAREA:1},
+					checked = {INPUT:1, radio:1, checkbox:1, OPTION:2},
+					skip ={'target':1, 'active':1, 'visited':1, 'first-line':1, 'first-letter':1, 'hover':1, 'focus':1, 'after':1, 'before':1, 'not':1, 'selection':1, 
+						'eq':1, 'gt':1, 'lt':1,
+						'valid':1, 'invalid':1, 'optional':1, 'in-range':1, 'out-of-range':1, 'read-only':1, 'read-write':1, 'required':1
+					};
+					return function( el, token ){
+						var data, time, indexes, parent, children, tag, update, dir, t0, t1,t2,  k, v, i, j, m;
+						switch( token.charAt(0) ){
+						case'#':return token.substr(1) == el.id;
+						case'.':return !( t0 = el.className ) ? 0 : ( k = token.substr(1), t0.indexOf(' ') > -1 ? k == t0 : t0.split(' ').indexOf(k) > -1 );
+						case'[':
+							if( ( i = token.indexOf('=') ) == -1 ) return el.getAttribute(token.substr(1)) === null ? 0 : 1;
+							if( ( t0 = el.getAttribute( token.substring( 1, i - ( mT0[t1 = token.charAt( i - 1 )] ? 1 : 0 ) ) ) ) === null ) return;
+							v = token.substr( i + 1 );
+							switch( t1 ){
+							case'~':return t0.split(' ').indexOf(v) > -1;
+							case'|':return t0.split('-').indexOf(v) > -1;
+							case'^':return t0.indexOf(v) == 0;
+							case'$':return t0.lastIndexOf(v) == ( t0.length - v.length );
+							case'*':return t0.indexOf(v) > -1;
+							case'!':return t0 !== v;
+							default:return t0 === v;
+							}
+						case':':
+							k = token.substr(1), i = k.indexOf('('), v = i > -1 ? isNaN( t0 = k.substr( i + 1 ) ) ? t0.replace( trim, '' ) : parseFloat(t0) : null;
+							if( v ) k = k.substring( 0, i );
+							if( skip[k] ) return;
+							tag = el.tagName;
+							switch( k ){
+							case'link':return tag == 'A' && el.getAttribute('href');
+							case'root':return tag == 'HTML';
+							case'lang':return el.getAttribute('lang') == v;
+							case'empty':return el.nodeType == 1 && !el.nodeValue && !el.childNodes.length;
+							case'checked':return t0 = checked[tag], ( t0 == 1 && el.checked == true && checked[el.getAttribute('type')] ) || ( t0 == 2 && el.selected );
+							case'enabled':return enabled[tag] && el.getAttribute('disabled') === null;
+							case'disabled':return enabled[tag] && el.getAttribute('disabled') !== null;
+							case'first-child':case'first-of-type':dir = 1;case'last-child':case'last-of-type':
+								if( ( children = el.parentNode.childNodes ) && ( i = j = children.length ) ){
+									m = 0, t1 = mTag[k];
+									while( i-- ){
+										t0 = children[dir ? j - i - 1 : i];
+										if( t0.nodeType == 1 && ( t1 ? tag == t0.tagName : 1 ) ) return !m++ && t0 == el;
+									}
+								}
+								return;
+							case'only-of-type':case'only-child':
+								if( ( children = el.parentNode.childNodes ) && ( i = children.length ) ){
+									m = 0, t1 = mTag[k];
+									while( i-- ){
+										t0 = children[i];	
+										if( t0.nodeType == 1 ){
+											if( t1 ? tag == t0.tagName : 1 ){
+												if( m++ ) return;
+												t2 = t0;
+											}
+										}
+									}
+									return el == t2;
+								}
+								return;
+							default:
+								if( !( parent = el.parentNode ) || parent.tagName == 'HTML' || !( children = parent.childNodes ) || !( j = i = children.length ) ) return;
+								if( v == 'n' ) return 1;
+								t1 = 0;
+								switch( k ){
+								case'nth-child':
+									for( i = 0 ; i < j ; i++ ){
+										t0 = children[i];
+										if( t0.nodeType == 1 ){
+											t1++;
+											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+										}
+									}
+									return;
+								case'nth-last-child':
+									while( i-- ){
+										t0 = children[i];
+										if( t0.nodeType == 1 ){
+											t1++;
+											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+										}
+									}
+									return;
+								case'nth-of-type':
+									tag = el.tagName;
+									for( i = 0 ; i < j ; i++ ){
+										t0 = children[i];
+										if( t0.nodeType == 1 && t0.tagName == tag ){
+											t1++;
+											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+										}
+									}
+									return;
+								case'nth-last-of-type':
+									tag = el.tagName;
+									while( i-- ){
+										t0 = children[i];
+										if( t0.nodeType == 1 && t0.tagName == tag ){
+											t1++;
+											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+										}
+									}
+									return;
+								}
+							}
+						default: return token == el.tagName || token == '*';
+						}
+					};
+				})(),
+				isQSA = doc['querySelectorAll'] ? 1 : 0, rTag = /^[a-z]+[0-9]*$/i, rAlpha = /[a-z]/i, rClsTagId = /^[.#]?[a-z0-9]+$/i,
+				DOC = document, tagName = {}, clsName = {},
+				className = (function( tagName, clsName ){
+					var reg = {}, r = {length:0};
+					return document['getElementsByClassName'] ? function(cls){
+						return clsName[cls] || ( clsName[cls] = DOC.getElementsByClassName(cls) );
+					} : function(cls){
+						var t0 = tagName['*'] || ( tagName['*'] = DOC.getElementsByTagName('*') ), t1 = r[cls] || ( r[cls] = new RegExp( '\\b' + cls + '\\b', 'g' ) ), i;
+						r.length = 0;
+						while( i-- ) if( t1.test(t0[i].className) ) r[r.length++] = t0[i];
+						return r;
+					};
+				})( tagName, clsName ),
+				mQSA = {' ':1,'+':1,'~':1,':':1,'[':1}, mT1 = {'>':1, '+':1, '~':1},
+				mParent = {' ':1, '>':1}, mQSAErr = '!', mBracket = {'[':1, '(':1, ']':2, ')':2},
+				mEx = {' ':1, '*':1, ']':1, '>':1, '+':1, '~':1, '^':1, '$':1},
+				mT0 = {' ':1, '*':2, '>':2, '+':2, '~':2, '#':3, '.':3, ':':3, '[':3},
+				R = {length:0}, arrs = {_l:0};
+				return function( query, doc, r ){
+					var sels, sel, hasParent, hasQSAErr, hasQS, el, els, tags, key, hit, token, tokens, t0, t1, t2, t3, i, j, k, l, m, n;
+					if( !r ) r = R;
+					r.length = 0, doc ? ( DOC = doc ) : ( doc = DOC );
+					if( rClsTagId.test(query) ) switch( query.charAt(0) ){
+						case'#':return r[r.length++] = doc.getElementById(query.substr(1)), r;
+						case'.':return className(query.substr(1));
+						default:return tagName[query] || ( tagName[query] = doc.getElementsByTagName(query) );
 					}
-					if( t0 == '.' ){
-						sel = sel.substr(1), t0 = doc.getElementsByTagName('*'), c.length = 0, i = t0.length;
-						while( i-- ) if( t0[i].className.indexOf(sel) > -1 ) c[c.length++] = t0[i];
-						return c.length ? c : null;
+					if( isQSA && ( i = query.indexOf(',') ) > -1 && query.indexOf('!') < 0 ) return doc.querySelectorAll(query);
+					if( i == -1 ) sels = arrs._l ? arrs[--arrs._l] : [], sels[0] = query, i = 1;
+					else sels = query.split(','), i = sels.length;
+					while( i-- ){
+						t0 = arrs._l ? arrs[--arrs._l] : [], t1 = '', sel = sels[i].replace( trim, '' ), m = 0, j = sel.length;
+						while( j-- ){
+							k = sel.charAt(j);
+							if( hasParent || mParent[k] ) hasParent = 1;
+							if( hasQSAErr || m == 2 && k == '!' ) hasQSAErr = 1;
+							if( ( t2 = mBracket[k] ) && ( m = t2 ) == 2 ) continue;
+							if( !( t2 = mEx[k] ) ) t1 = k + t1;
+							if( t2 && m == 2 ) t1 = k + t1;
+							else if( ( t2 = mT0[k] ) == 1 ){
+								if( ( t3 = t0[t0.length - 1] ) == ' ' ) continue;
+								if( t1 ) t0[t0.length] = t1, t1 = '';
+								if( !mT1[t3] ) t0[t0.length] = k;
+							}else if( t2 == 2 ){
+								if( t1.replace( trim, '' ) ) t0[t0.length] = t1, t1 = '';
+								if( t0[t0.length - 1] == ' ' ) t0.pop();
+								t0[t0.length] = k;
+							}else if( t2 == 3 || !j ){
+								if( t1 && m < 2 ) t0[t0.length] = t1, t1 = '';
+							}else if( sel.charAt( j - 1 ) == ' ' ) t0[t0.length] = t1, t1 = '';
+						}
+						j = t0.length;
+						while( j-- ){
+							if( rTag.test(t0[j]) ) t0[j] = t0[j].toUpperCase();
+							else if( t0[j].charAt(0) == ':' ){
+								t0[j] = t0[j].toLowerCase();
+								if( ( t0[j] == ':nth-child(n' || t0[j] == ':nth-last-child(n' ) && t0.length != 1 ){
+									t0.splice( j, 1 );
+									continue;
+								}
+							}
+							if( isQSA && !hasQSAErr && !hasQS && !mQSA[t0[j].charAt(0)] ) hasQS = 1;
+						}
+						sels[i] = t0;
 					}
-					return doc.getElementsByTagName(sel);
+					if( sels.length == 1 ){
+						t0 = sels[0][0];
+						if( ( k = t0.charAt(0) ) == '#' ) els = arrs._l ? arrs[--arrs._l] : [], els[0] = doc.getElementById(t0.substr(1)), sels[0].shift();
+						else if( k == '.' ){
+							els = className(t0.substr(1)), sels[0].shift();
+							if( hasQS && els.length > 100 ) return doc.querySelectorAll(query);
+						}else if( k == '[' || k == ':' ){
+							if( hasQS ) return doc.querySelectorAll(query);
+							if( !hasParent ){
+								t0 = sels[0][sels[0].length - 1], k = t0.charAt(0);
+								if( k == '#' ) sels[0].pop(), els = arrs._l ? arrs[--arrs._l] : [], els[0] = doc.getElementById( t0.substr(1) );
+								else if( k == '.' ) sels[0].pop(), els = className( t0.substr(1) );
+								else if( rTag.test(t0) ) sels[0].pop(), els = tagName[t0] || ( tagName[t0] = doc.getElementsByTagName(t0) );
+							}
+						}else if( rTag.test(t0) ){
+							sels[0].shift(), els = tagName[t0] || ( tagName[t0] = doc.getElementsByTagName(t0) );
+							if( hasQS && els.length > 100 ) return doc.querySelectorAll(query);
+						}
+					}
+					if( !els ) els = tagName['*'] || ( tagName['*'] = doc.getElementsByTagName('*') );
+					if( !sels[0].length ) return arrs[arrs._l++] = sels[0], sels.length = 0, arrs[arrs._l++] = sels, els;
+					for( i = 0, j = els.length ; i < j ; i++ ){
+						l = sels.length;
+						while( l-- ){
+							el = els[i];
+							for( tokens = sels[l], m = 0, n = tokens.length; m < n; m++ ){
+								token = tokens[m], hit = 0;
+								if( ( k = token.charAt(0) ) == ' ' ){
+									m++;
+									while( el = el.parentNode ) if( hit = compare( el, tokens[m] ) ) break;
+								}else if( k == '>' ) hit = compare( el = el.parentNode, tokens[++m] );
+								else if( k == '+' ){
+									while( el = el.previousSibling ) if( el.nodeType == 1 ) break;
+									hit = el && compare( el, tokens[++m] );
+								}else if( k == '~' ){
+									m++;
+									while( (el = el.previousSibling) ){
+										if( el.nodeType == 1 && compare( el, tokens[m] ) ){
+											hit = 1;
+											break;
+										}
+									}
+								}else hit = compare( el, token );
+								if( !hit ) break;
+							}
+							if( i == j - 1 ) tokens.length = 0, arrs[arrs._l++] = tokens;
+							if( hit ) break;
+						}
+						if( i == j - 1 ) sels.length = 0, arrs[arrs._l++] = sels;
+						if( hit ) r[r.length++] = els[i];
+					}
+					return r;
 				};
-			})(doc),
+			})( doc, trim ),
 			clsfn.dom = dom = (function( query, html ){
 				var n = {length:0}, dom = function( sel, isSub ){
 					return typeof sel == 'string' ? sel.charAt(0) == '<' ? html(sel) : query(sel) : sel['nodeType'] == 1 ? ( n[0] = sel, n.length = 1, n ) : sel['instanceOf'] == bs.Dom || sel.length ? sel : null;
@@ -832,7 +1009,7 @@ fn( 'ev', (function(){
 								v ? t0.on( k, g, v.splice ? ( m = v[1], a = v, v[0] || d ) : v[k] ? ( m = v[k], v ) : ( m = v, d ), m, a ) : t0.off( k, g );
 						}else{//set
 							if( ( t0 = typeof v ) == 'function' ) v = v( type == 1 ? '@sGet@' : '@tGet@' );
-							else if( t0 == 'string' && v.charAt(0) == '{' && v.charAt( t1 = v.length - 1 ) == '}' ){
+							else if( t0 == 'string' && v.charAt(0) == '{' && exop[v.charAt(1)] && v.charAt( t1 = v.length - 1 ) == '}' ){
 								v0 = type == 1 ? '@sGet@' : '@tGet@',
 								v = ( k0 = v.charAt(1) ) == '=' ? v0 : (
 									v0 = parseFloat(v0), v = parseFloat(v.substring( 2, t1 )),
@@ -849,14 +1026,14 @@ fn( 'ev', (function(){
 				sGet:'data.BSdomS ? data.BSdomS.g( d.style, k ) : d.style[style[k]]',
 				sSet:'arg.length ? ( data.BSdomS || ( data.BSdomS = bs.Style() ) ).S( d.style, arg, 0 ) : 0',
 				tGet:'type( d, k )'
-			}, {ev:bs.ev.dom, domData:domData, style:bs.Style.keys, attrs:attrs, first:first, ktype:[], arg:{length:0}, del:bs.Dom.del} );
+			}, {ev:bs.ev.dom, domData:domData, style:bs.Style.keys, attrs:attrs, first:first, ktype:[], arg:{length:0}, del:bs.Dom.del, exop:{'+':1,'-':1,'*':1,'/':1,'=':1} } );
 		} ),
 		fn( 'css', (function cssLoader(trim){
 			var r = /^[0-9.-]+$/, parser = function(data){
-				var t0, t1, t2, c, i, j, k, v, m, sel, val;
+				var t0, t1, t2, t3, c, i, j, k, v, m, sel, val;
 				t2 = [], t0 = data.split('}');
 				for( i = 0, j = t0.length ; i < j ; i++ ){
-					if( t0[i] ){
+					if( t0[i].replace( trim, '' ) ){
 						t1 = t0[i], sel = t1.substring( 0, m = t1.indexOf('{') ).replace( trim, '' ), val = t1.substr( m + 1 );
 						if( sel.indexOf('@') == -1 ){
 							c = bs.Css(sel), t1 = val.split(';'), k = t1.length, t2.length = 0;
@@ -875,7 +1052,7 @@ fn( 'ev', (function(){
 		})();
 	},
 	ANIMATE = function(){
-		var timer, start, end, loop, ltype, ease, ani, time, isLive, isPause, tween, tweenS, tweenANI, ex, ANI, mk0, mk1, i;
+		var ani, time, timer, start, end, ltype, loop, ease, ex, tweenS, tweenANI, isLive, isPause, tween, ANI, mk0, mk1, i;
 		ani = [], time = 0, timer = 'equestAnimationFrame';
 		if( timer = W['r' + timer] || W[bs.DETECT.stylePrefix + 'R' + timer] )
 			start = function(){if( !isLive ) isPause = 0, isLive = 1, loop();},
@@ -901,24 +1078,8 @@ fn( 'ev', (function(){
 				}
 				ani.length ? ltype ? timer(loop) : 0 : end();
 			}
-		};
-		ease = (function(){
-			var PI, HPI;
-			PI = Math.PI, HPI = PI * .5;
-			return {//rate,start,term
-				linear:function(a,c,b){return b*a+c},
-				backIn:function(a,c,b){return b*a*a*(2.70158*a-1.70158)+c}, backOut:function(a,c,b){a-=1;return b*(a*a*(2.70158*a+1.70158)+1)+c},
-				backInOut:function(a,c,b){a*=2;if(1>a)return 0.5*b*a*a*(3.5949095*a-2.5949095)+c;a-=2;return 0.5*b*(a*a*(3.70158*a+2.70158)+2)+c},
-				bounceIn:function(a,c,b,d,e){return b-ease[3]((e-d)/e,0,b)+c},
-				bounceOut:function(a,c,b){if(0.363636>a)return 7.5625*b*a*a+c;if(0.727272>a)return a-=0.545454,b*(7.5625*a*a+0.75)+c;if(0.90909>a)return a-=0.818181,b*(7.5625*a*a+0.9375)+c;a-=0.95454;return b*(7.5625*a*a+0.984375)+c},
-				bounceInOut:function(a,c,b,d,e){if(d<0.5*e)return d*=2,0.5*ease[13](d/e,0,b,d,e)+c;d=2*d-e;return 0.5*ease[14](d/e,0,b,d,e)+0.5*b+c},
-				sineIn:function(a,c,b){return -b*Math.cos(a*HPI)+b+c}, sineOut:function(a,c,b){return b*Math.sin(a*HPI)+c},
-				sineInOut:function(a,c,b){return 0.5*-b*(Math.cos(PI*a)-1)+c},
-				circleIn:function(a,c,b){return -b*(Math.sqrt(1-a*a)-1)+c}, circleOut:function(a,c,b){a-=1;return b*Math.sqrt(1-a*a)+c},
-				circleInOut:function(a,c,b){a*=2;if(1>a)return 0.5*-b*(Math.sqrt(1-a*a)-1)+c;a-=2;return 0.5*b*(Math.sqrt(1-a*a)+1)+c},
-				quadraticIn:function(a,c,b){return b*a*a+c},quadraticOut:function(a,c,b){return -b*a*(a-2)+c}
-			};
-		})(),
+		},
+		ease = {},
 		ex = function( v, v0 ){
 			var t0;
 			if( ( t0 = typeof v ) == 'number' ) return v;
@@ -942,12 +1103,12 @@ fn( 'ev', (function(){
 			while( i < j ){
 				k = arg[i++], v = arg[i++];
 				if( tween[k] ){
-					if( k == 'time' ) tw.time = parseInt(v*1000), tw.timeR = 1/tw.time;
-					else if( k == 'ease' ) tw.ease = ease[v];
-					else if( k == 'end' || k == 'update' ) tw[k] = v;
-					else if( k == 'loop' ) tw.loop = tw.loopC = v;
-					else if( k == 'delay' ) tw.delay = parseInt(v*1000);
-					else if( k == 'group' || k == 'yoyo' || k == 'bezier' || k == 'circle' ) tw[k] = v;
+					k == 'time' ? ( tw.time = parseInt( v * 1000 ), tw.timeR = 1 / tw.time ) :
+					k == 'ease' ? tw.ease = ease[v] :
+					k == 'end' || k == 'update' ? tw[k] = v :
+					k == 'loop' ? tw.loop = tw.loopC = v :
+					k == 'delay' ? tw.delay = parseInt( v * 1000 ) :
+					k == 'group' || k == 'yoyo' || k == 'bezier' || k == 'circle' ? tw[k] = v : 0
 				}else{
 					l = tw.length;
 					while( l-- ){
@@ -1067,10 +1228,26 @@ fn( 'ev', (function(){
 			pause:mk0( 1, 1 ), resume:mk0( 0, 2 ), tweenStop:mk1(0), tweenPause:mk1(1), tweenResume:mk1(2), tweenToggle:mk1(3),
 			toggle:function(){return isPause ? ANI.resume() : ANI.pause(), isPause;},
 			stop:function(){end();},
-			ease:ease
+			ease:function( k, v ){v ? ease[k] ? err( 2501, k ) : ease[k] = v : ease[k];}
 		};
 		return ANI;
 	},
+	t0 = setInterval( function(){
+		var start, i;
+		switch( doc.readyState ){
+		case'complete':case'loaded':break;
+		case'interactive':if( doc.documentElement.doScroll ) try{doc.documentElement.doScroll('left');}catch(e){return;}
+		default:return;
+		}
+		clearInterval(t0),
+		start = function(){
+			var t0 = que, i = 0, j = t0.length;
+			que = null;
+			while( i < j ) t0[i++]();
+		},
+		bs.obj( 'DETECT', detectDOM( W, detect ) ), DOM(), bs.obj( 'ANI', ANIMATE() ), EXT(),
+		pque.length ? ( i = pque, pque = null, bs['plugin~']( start, i ) ) : start();
+	}, 1 ),
 	EXT = function(){
 		var fn;
 		NETWORK:
@@ -1177,9 +1354,45 @@ fn( 'ev', (function(){
 		})(trim);
 		EVENT:
 		fn = bs.ev.dom.fn;
-		detect.device =='tablet' || detect.device=='mobile' ? ( fn( 'down', 'touchstart' ), fn( 'up', 'touchend' ), fn( 'move', 'touchmove' ) ) :
-			fn( 'down', 'mousedown' ), fn( 'up', 'mouseup' ), fn( 'move', 'mousemove' );
+		detect.device =='tablet' || detect.device=='mobile' ?
+			( fn( 'down', 'touchstart' ), fn( 'up', 'touchend' ), fn( 'move', 'touchmove' ) ) :
+			( fn( 'down', 'mousedown' ), fn( 'up', 'mouseup' ), fn( 'move', 'mousemove' ) );
+		fn = bs.WIN.ev;	
+		if( !'onorientationchange' in W ) fn( 'orientationchange', 'resize' );
+		if( !'onhashchange' in W ) fn( 'hashchange', (function(){
+			var id = -1, old;
+			return function( e, k, g, c, m, a ){
+				var t0, old;
+				if( v ){
+					e['+']( false, 'hashchange', g, c, m, a, 2 );
+					old = location.hash;
+					if( id == -1 ) id = setInterval( function(){
+						if( old != location.hash ) e.type = 'hashchange', old = location.hash, e['~']( false, 'hashchange' );
+					}, 1 );
+				}else if( e['-']( false, 'hashchange', g ) == 0 ) clearInterval(id), id = -1;
+			};
+		})() );
 		ANI:
+		fn = bs.ANI.ease,
+		(function(){
+			var PI = Math.PI, HPI = PI * .5;
+			//rate,start,term
+			fn( 'linear', function(a,c,b){return b*a+c} ),
+			fn( 'backIn', function(a,c,b){return b*a*a*(2.70158*a-1.70158)+c} ),
+			fn( 'backOut', function(a,c,b){a-=1;return b*(a*a*(2.70158*a+1.70158)+1)+c} ),
+			fn( 'backInOut', function(a,c,b){a*=2;if(1>a)return 0.5*b*a*a*(3.5949095*a-2.5949095)+c;a-=2;return 0.5*b*(a*a*(3.70158*a+2.70158)+2)+c} ),
+			fn( 'bounceIn', function(a,c,b,d,e){return b-ease[3]((e-d)/e,0,b)+c} ),
+			fn( 'bounceOut', function(a,c,b){if(0.363636>a)return 7.5625*b*a*a+c;if(0.727272>a)return a-=0.545454,b*(7.5625*a*a+0.75)+c;if(0.90909>a)return a-=0.818181,b*(7.5625*a*a+0.9375)+c;a-=0.95454;return b*(7.5625*a*a+0.984375)+c} ),
+			fn( 'bounceInOut', function(a,c,b,d,e){if(d<0.5*e)return d*=2,0.5*ease[13](d/e,0,b,d,e)+c;d=2*d-e;return 0.5*ease[14](d/e,0,b,d,e)+0.5*b+c} ),
+			fn( 'sineIn', function(a,c,b){return -b*Math.cos(a*HPI)+b+c} ),
+			fn( 'sineOut', function(a,c,b){return b*Math.sin(a*HPI)+c} ),
+			fn( 'sineInOut', function(a,c,b){return 0.5*-b*(Math.cos(PI*a)-1)+c} ),
+			fn( 'circleIn', function(a,c,b){return -b*(Math.sqrt(1-a*a)-1)+c} ),
+			fn( 'circleOut', function(a,c,b){a-=1;return b*Math.sqrt(1-a*a)+c} ),
+			fn( 'circleInOut', function(a,c,b){a*=2;if(1>a)return 0.5*-b*(Math.sqrt(1-a*a)-1)+c;a-=2;return 0.5*b*(Math.sqrt(1-a*a)+1)+c} ),
+			fn( 'quadraticIn', function(a,c,b){return b*a*a+c} ),
+			fn( 'quadraticOut', function(a,c,b){return -b*a*(a-2)+c} );
+		})(),
 		bs.ANI.fn( 'style', {
 			target:'arg[0].instanceOf == bs.Dom ? arg[0] : bs.Dom(arg[0])',
 			targetAni0:'bs.Dom.data(t0[l]).BSdomS', targetAni1:'t0[l].style',
@@ -1190,21 +1403,6 @@ fn( 'ev', (function(){
 			aniCircle:'t1[ckx] = cvx, circle.x0 ? ckx( t1, cvx ) : s[ckx] = cvx + u[ckx], t1[cky] = cvy, circle.y0 ? cky( t1, cvy ) : s[cky] = cvy + u[cky]',
 			aniBezier:'bt[i + 4] ? k( t1, s, v ) : s[k] = v + u[k], t1[k] = v'
 		} );
-	}, t0 = setInterval( function(){
-		var start, i;
-		switch( i = doc.readyState ){
-		case'complete':case'loaded':break;
-		case'interactive':if( doc.documentElement.doScroll ) try{doc.documentElement.doScroll('left');}catch(e){return;}
-		default:return;
-		}
-		clearInterval(t0),
-		start = function(){
-			var t0 = que, i = 0, j = t0.length;
-			que = null;
-			while( i < j ) t0[i++]();
-		},
-		bs.obj( 'DETECT', detectDOM( W, detect ) ), DOM(), bs.obj( 'ANI', ANIMATE() ), EXT(),
-		pque.length ? ( i = pque, pque = null, bs['plugin~']( start, i ) ) : start();
-	}, 1 );
+	};
 })();
 } )(this);

@@ -5,46 +5,32 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 <body>
+<pre id="output"></pre>
 <script src="bsjs.js"></script>    
 <script>
 bs(function(){
-    //fn( 'param', param ),
-    //alert(bs.param(['k','v','@k','v']));
-    //alert(bs.url('http://cookilab.com?k=v#a?', ['k1','v1','k2','v2']));
-    /*
-    bs.get( function( data, option ){
+    function end( data, option ) {
         if( data !== null ){
-            var header = option;
-            console.log( header, data );
+            bs.Dom('#output').S('html+', '[option]\n' + option);
+            bs.Dom('#output').S('html+', '\n' + data);
         }else if( option == 'timeout' ){
-            console.log( 'timeout' );
+            bs.Dom('#output').S('html+','timeout');
         }else{
-            console.log( 'error code=' + option );
+            bs.Dom('#output').S('html+', 'error code :'+ option);
         }
-    }, 'json.php', '@Content-Type', 'test', '@Cache-Control', 'no-cache'  );
+        bs.Dom('#output').S('html+', '\n-----------------------------------------------------------------------------------\n');
+    }
+        
+    //bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+    //bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2', '@Custom', 'a' );
+    //bs.get( end, 'testdata.php?a=b','param1', 'value', 'param2', 'value2' );
+    //bs.delete( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+    //bs.put( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
     
-    bs.get( function( data, option ){
-        if( data !== null ){
-            var header = option;
-            console.log( header, data );
-        }else if( option == 'timeout' ){
-            console.log( 'timeout' );
-        }else{
-            console.log( 'error code=' + option );
-        }
-    }, 'json.php'  );    
-    */
-   
-    bs.get( function( data, option ){
-         if( data !== null ){
-             var header = option;
-             console.log( header, data );
-         }else if( option == 'timeout' ){
-             console.log( 'timeout' );
-         }else{
-             console.log( 'error code=' + option );
-         }
-     }, 'http://flashon.co.kr/goyang2014/game_data.php', '@Content-Type', 'test', '@Cache-Control', 'no-cache'  );
+    bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
+    //bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
+    //bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
+    //bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
 });
 </script>
 </body>

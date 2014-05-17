@@ -19,11 +19,11 @@ $method = $_POST['method'];
 parse_str($_POST['data'], $data);
 parse_str($_POST['headers'], $headers);
 
-#echo "[corsProxy] \n";
-#echo ' - url = '.$url."\n";
-#echo ' - method = '.$method."\n";
-#echo ' - data = '.json_encode($data)."\n";
-#echo ' - headers = '.json_encode($headers)."\n";
+echo "[corsProxy] \n";
+echo ' - url = '.$url."\n";
+echo ' - method = '.$method."\n";
+echo ' - data = '.json_encode($data)."\n";
+echo ' - headers = '.json_encode($headers)."\n";
 
 switch( $method ) {
     case 'GET': $ret = __get( $url, $headers ); break;
@@ -32,7 +32,7 @@ switch( $method ) {
     case 'DELETE': $ret = __delete( $url, $headers, $data ); break;
     default; $ret = ''; break;
 }
-echo $ret;
+echo " - return = ".$ret;
 exit;
 function __get( $url, $headers ){
     $t0 = curl_init();
