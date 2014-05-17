@@ -21,16 +21,16 @@ bs(function(){
         bs.Dom('#output').S('html+', '\n-----------------------------------------------------------------------------------\n');
     }
         
-    //bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
-    //bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2', '@Custom', 'a' );
-    //bs.get( end, 'testdata.php?a=b','param1', 'value', 'param2', 'value2' );
-    //bs.delete( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
-    //bs.put( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+    bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+    bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2', '@Custom', 'a' );
+    bs.get( end, 'testdata.php?a=b','param1', 'value', 'param2', 'value2' );
+    bs.delete( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+    bs.put( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
     
     bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-    //bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-    //bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-    //bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
+    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
+    bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
+    bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
 });
 </script>
 </body>
