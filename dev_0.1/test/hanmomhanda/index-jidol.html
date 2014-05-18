@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head lang="ko">
+<title></title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+<pre id="output"></pre>
+<script src="./bsjs.0.4.mod.js"></script>
+<script>
+bs(function(){
+    function end( data, option ) {
+        if( data !== null ){
+            bs.Dom('#output').S('html+', '[option]\n' + option);
+            bs.Dom('#output').S('html+', '\n+++++ Result From CORS +++++');
+            bs.Dom('#output').S('html+', '\n' + data);
+        }else if( option == 'timeout' ){
+            bs.Dom('#output').S('html+','timeout');
+        }else{
+            bs.Dom('#output').S('html+', 'error code :'+ option);
+        }
+        bs.Dom('#output').S('html+', '\n-----------------------------------------------------------------------------------\n');
+    }
+        
+//    bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+//    bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2', '@Custom', 'a' );
+//    bs.get( end, 'testdata.php?a=b','param1', 'value', 'param2', 'value2' );
+//    bs.delete( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+//    bs.put( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
+    
+    
+    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
+    bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
+    bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
+    bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2');     
+});
+</script>
+</body>
+</html>
