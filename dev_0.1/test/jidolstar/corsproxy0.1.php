@@ -1,11 +1,14 @@
 <?php
-header('Access-Control-Allow-Origin: *');
+if( !isset($_SERVER['HTTP_BSCORSPROXY']) ) {
+    header('Access-Control-Allow-Origin: xxxxx');
+    exit;
+}
+header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
 header('Access-Control-Allow-Methods: POST, OPTIONS');   
 header('Access-Control-Allow-Headers: bscorsproxy, Content-Type');       
 header('Access-Control-Max-Age: 5');
 header('Access-Control-Allow-Credentials: true');
 header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");        
-
 error_reporting( E_ALL );
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
@@ -40,7 +43,7 @@ function __get( $url, $headers ){
     if( $headers && count($headers) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $headers ); 
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
-    return $t0 === FALSE ? curl_error( $t0 ) : $t1;
+    return $t1 === FALSE ? curl_error( $t0 ) : $t1;
 }
 function __post( $url, $headers, $data ){
     $t0 = curl_init();
@@ -52,7 +55,7 @@ function __post( $url, $headers, $data ){
     if( $data ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
-    return $t0 === FALSE ? curl_error( $t0 ) : $t1;
+    return $t1 === FALSE ? curl_error( $t0 ) : $t1;
 }
 function __put( $url, $headers, $data ){
     $t0 = curl_init();
@@ -65,7 +68,7 @@ function __put( $url, $headers, $data ){
     if( $data ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
-    return $t0 === FALSE ? curl_error( $t0 ) : $t1;
+    return $t1 === FALSE ? curl_error( $t0 ) : $t1;
 }
 function __delete( $url, $headers, $data ){
     $t0 = curl_init();
@@ -78,7 +81,7 @@ function __delete( $url, $headers, $data ){
     if( $data ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
-    return $t0 === FALSE ? curl_error( $t0 ) : $t1;
+    return $t1 === FALSE ? curl_error( $t0 ) : $t1;
 }
 function __exception_handler( $e ) {      
     $t0 = pathinfo( $e->getFile() );

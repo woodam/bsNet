@@ -12,8 +12,8 @@ if (!function_exists('getallheaders')) {
     }
 }
 $data = array(
-    "headers"=>getallheaders(),
-    "method"=>$_SERVER['REQUEST_METHOD']
+    "headers" => getallheaders(),
+    "method" => $_SERVER['REQUEST_METHOD']
 );
 switch( $_SERVER['REQUEST_METHOD'] ) {
     case 'POST': $data['data'] = $_POST; break;

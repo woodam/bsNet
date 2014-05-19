@@ -352,6 +352,7 @@ CORE:
                     for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
                     arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
                     xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+                    xhr.setRequestHeader( 'bscorsproxy', 'bscorsproxy' );
                 } else {
                     while( i < j ){
                             xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
