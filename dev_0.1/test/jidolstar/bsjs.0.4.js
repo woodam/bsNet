@@ -328,7 +328,7 @@ CORE:
                 if( isCors ) {
                     arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg);
                     U = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/corsproxy0.1.php';
-                    //U = 'http://api.bsplugin.com/corsproxy/corsproxy0.1.php';
+                    //U = 'http://api.bsplugin.com/corsproxy/';
                 } 
 		xhr = rq();
 		if( end ) xhr.onreadystatechange = function(){

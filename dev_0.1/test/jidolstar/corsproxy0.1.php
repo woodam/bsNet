@@ -3,6 +3,7 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');   
 header('Access-Control-Allow-Headers: bscorsproxy, Content-Type');       
 header('Access-Control-Max-Age: 5');
+header('Access-Control-Allow-Credentials: true');
 header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");        
 
 error_reporting( E_ALL );
@@ -16,14 +17,10 @@ if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) 
 
 $url = $_POST['url'];
 $method = $_POST['method'];
-parse_str($_POST['data'], $data);
-parse_str($_POST['headers'], $headers);
-
-echo "[corsProxy] \n";
-echo ' - url = '.$url."\n";
-echo ' - method = '.$method."\n";
-echo ' - data = '.json_encode($data)."\n";
-echo ' - headers = '.json_encode($headers)."\n";
+parse_str($_POST['headers'], $temps);
+$headers = array(); 
+foreach( $temps as $k => $v ) $headers[] = $k.": ".$v;
+$data = $_POST['data'];
 
 switch( $method ) {
     case 'GET': $ret = __get( $url, $headers ); break;
@@ -32,7 +29,7 @@ switch( $method ) {
     case 'DELETE': $ret = __delete( $url, $headers, $data ); break;
     default; $ret = ''; break;
 }
-echo " - return = ".$ret;
+echo $ret;
 exit;
 function __get( $url, $headers ){
     $t0 = curl_init();
@@ -52,7 +49,7 @@ function __post( $url, $headers, $data ){
     curl_setopt( $t0, CURLOPT_POST, TRUE );
     curl_setopt( $t0, CURLOPT_URL, $url );
     if( $headers && count($headers) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $headers );
-    if( $data && count($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
+    if( $data ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
     return $t0 === FALSE ? curl_error( $t0 ) : $t1;
@@ -65,7 +62,7 @@ function __put( $url, $headers, $data ){
     curl_setopt( $t0, CURLOPT_POST, TRUE );
     curl_setopt( $t0, CURLOPT_URL, $url );
     if( $headers && count($headers) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $headers );
-    if( $data && count($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query($data) );
+    if( $data ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
     return $t0 === FALSE ? curl_error( $t0 ) : $t1;
@@ -78,7 +75,7 @@ function __delete( $url, $headers, $data ){
     curl_setopt( $t0, CURLOPT_POST, TRUE );
     curl_setopt( $t0, CURLOPT_URL, $url );
     if( $headers && count($headers) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $headers );
-    if( $data && count($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query($data) );
+    if( $data ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
     $t1 = curl_exec( $t0 );
     curl_close( $t0 );
     return $t0 === FALSE ? curl_error( $t0 ) : $t1;
