@@ -37,7 +37,8 @@ function isBS($decodedProtocol) {
 function setResponseHeaders($svr) {
     header('Access-Control-Allow-Origin: ' . $svr['HTTP_ORIGIN']);
     header('Access-Control-Allow-Methods: POST, OPTIONS');   
-    header('Access-Control-Allow-Headers: Cache-Control, Content-Type, ABCD');       
+    header('Access-Control-Allow-Headers: Cache-Control, Content-Type');  
+    header('Access-Control-Allow-Credentials: true');
     header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");        
     header('Access-Control-Max-Age: 5');
 }
@@ -54,7 +55,7 @@ function getResultFromTarget($svr, $req, $decodedProtocol) {
     curl_setopt( $t0, CURLOPT_HEADER, FALSE );
     curl_setopt( $t0, CURLOPT_RETURNTRANSFER, TRUE );
     curl_setopt( $t0, CURLOPT_CUSTOMREQUEST, $method );
-    if ( strcasecmp($method, 'post') == 0 ) {
+    if ( strcasecmp($method, 'post') == 0 || strcasecmp($method, 'put') == 0 || strcasecmp($method, 'delete') == 0) {
         curl_setopt( $t0, CURLOPT_POSTFIELDS, http_build_query(getRealUserDataArray($req)) );    
     }    
     curl_setopt( $t0, CURLOPT_HTTPHEADER, getRequestHeaders($svr));
@@ -73,7 +74,9 @@ function getRealUserDataArray($req) {
     $resultArr = array();
     
     foreach($req as $k => $v) {
-        $resultArr[$k] =$v;
+        if ( $k != 'postdata' && $k != 'bsNC') {
+            $resultArr[$k] =$v;
+        }
     }
     return $resultArr;
 }
@@ -83,17 +86,7 @@ function getRealUserDataArray($req) {
 // CORS requestor의 실제 헤더 정보를 추출하여 배열로 반환
 //
 function getRequestHeaders($svr) {
-
-    $h_arr = array('Host: ' . $svr['HTTP_HOST']);
-    array_push($h_arr, 'User-Agent: ' . $svr['HTTP_USER_AGENT']);
-    //	array_push($h_arr, 'Origin: ' . $svr['HTTP_ORIGIN']);
-    /*
-            $ac_req_method = $svr['HTTP_ACCESS_CONTROL_REQUEST_METHOD'];
-            isset($ac_req_method) ? array_push($h_arr, 'Access-Control-Request-Method: ' . $ac_req_method) : 0;
-
-            $ac_req_headers = $svr['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'];
-            isset($ac_req_headers) ? array_push($h_arr, 'Access-Control-Request-Headers: ', $ac_req_headeers) : 0;
-    */
+    $h_arr = array('User-Agent: ' . $svr['HTTP_USER_AGENT']);
     return $h_arr;
 }
 

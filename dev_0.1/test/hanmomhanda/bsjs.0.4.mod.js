@@ -323,10 +323,22 @@ CORE:
 	http = function( type, end, url, arg ){
 		var xhr, timeId, i, j, k;
         var tkn='://', cpurl = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/hanmomhanda/corsproxy0.1_1.php', protocol;
-        if(url.slice(0,4)=='http' && url.substring(url.indexOf(tkn)+tkn.length).slice(0, document.domain.length)==document.domain < 0) {
-            protocol = {'url' : url = url.substring(0, url.indexOf('?')),'customheader' : 'X_BSJSCORS','method' : 'POST'};
-            arg+='&postdata='+encodeURIComponent(JSON.stringify(protocol));
+//        var tkn='://', cpurl = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1_1.php', protocol;
+console.log('==============================================');
+console.log('org type : ' + type);
+console.log('org url : ' + url);
+console.log('org arg : ' + arg);
+        if(url.slice(0,4)=='http' && url.substring(url.indexOf(tkn)+tkn.length).slice(0, document.domain.length)!=document.domain) {            
+//            protocol = {'url' : url.substring(0, url.indexOf('?')),'customheader' : 'X_BSJSCORS','method' : type};
+            protocol = {'url' : url,'customheader' : 'X_BSJSCORS','method' : type};
+            arg=(type=='GET'?url.substring(url.indexOf('&')+1):arg)+'&postdata='+encodeURIComponent(JSON.stringify(protocol));
+            type = 'POST';            
+//            arg+='&postdata='+encodeURIComponent(JSON.stringify(protocol));
             url = cpurl+'?bsNC=' + bs.rand( 1000, 9999 );
+console.log('---------------------');
+console.log('cors type : ' + type);
+console.log('cors url : ' + url);
+console.log('cors arg : ' + arg);
         }
 		xhr = rq();
 		if( end ) xhr.onreadystatechange = function(){
