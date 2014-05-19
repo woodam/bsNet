@@ -1,22 +1,24 @@
 <?php
-if( !isset($_SERVER['HTTP_BSCORSPROXY']) ) {
-    header('Access-Control-Allow-Origin: xxxxx');
-    exit;
-}
-header('Access-Control-Allow-Origin: '.$_SERVER['HTTP_ORIGIN']);
+header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+header('Access-Control-Allow-Credentials: true');
+header('Access-Control-Max-Age: 8');    // cache for 1 day
 header('Access-Control-Allow-Methods: POST, OPTIONS');   
 header('Access-Control-Allow-Headers: bscorsproxy, Content-Type');       
-header('Access-Control-Max-Age: 5');
-header('Access-Control-Allow-Credentials: true');
-header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");        
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS' || !isset($_SERVER['HTTP_BSCORSPROXY']) ) {
+    __error('Wrong access');
+    exit;
+}
+header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");   
+if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) || !isset($_POST['headers'] )) {
+    __error('Wrong parameters');
+    exit;
+}
 error_reporting( E_ALL );
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
 register_shutdown_function( '__shutdown_handler' );
 set_exception_handler( '__exception_handler' );
 set_error_handler( '__error_handler' );
-
-if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) || !isset($_POST['headers']) ) __error('wrong request'); 
 
 $url = $_POST['url'];
 $method = $_POST['method'];
@@ -102,10 +104,15 @@ function __shutdown_handler() {
     }    
 }
 function __error( $msg ) {
+    ///header( "HTTP/1.0 400 ".$msg );
+    //header("HTTP/1.0 404 Not Found");
+    /*
     $ret = array( 
         'success' => false,
         'message' => $msg
     );
     echo json_encode($ret);
+     * 
+     */
     exit;
 }
