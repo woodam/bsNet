@@ -168,7 +168,7 @@ CORE:
 (function(trim){
 	var rc = 0, rand, template,
 	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {},
-	url, paramH, paramP, param, xhr, /*rqPool,*/ rq, httpHeader, httpH, http;
+	url, paramH, paramP, param, xhr, rq, httpHeader, httpH, http;
 	BASE:
 	fn( 'obj', function( key, v ){var t0 = key.replace( trim, '' ).toUpperCase(); t0 != key ? err( 1002, key ) : bs[t0] ? err( 2002, t0 ) : bs[t0] = v;} ),
 	fn( 'cls', function( key, v ){
@@ -297,18 +297,11 @@ CORE:
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
 	})(),
-	//rqPool = {_l:0},
 	rq = function(x){
 		if( x ){
 			if( x.readyState != 4 ) x.abort();
 			x.onreadystatechange = null;
 		}else return xhr();
-                /*
-		if( x ){
-			if( x.readyState != 4 ) x.abort();
-			x.onreadystatechange = null, rqPool[rqPool._l++] = x;
-		}else return rqPool._l ? rqPool[--rqPool._l] : xhr();
-                */
 	},
 	paramH = [], paramP = [],
 	param = function(arg){
@@ -328,13 +321,12 @@ CORE:
 	httpHeader = {}, httpH = [],
 	http = function( type, end, U, arg ){
 		var xhr, timeId, isCors, i, j, k, l;
-                isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, document.domain.length) !== document.domain ? true : false;
-                if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
-                if( isCors ) {
-                    arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg);
-                    U = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/corsproxy0.1.php';
-                    //U = 'http://api.bsplugin.com/corsproxy/';
-                } 
+		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, document.domain.length) !== document.domain ? true : false;
+		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
+		if( isCors ) {
+			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg);
+			U = 'http://api.bsplugin.com/corsproxy/corsproxy0.1.php';
+		} 
 		xhr = rq();
 		if( end ) xhr.onreadystatechange = function(){
 			var text, status;
@@ -348,23 +340,23 @@ CORE:
 		}, timeout );
 		xhr.open( isCors ? 'POST' : type, U, end ? true : false ),
 		httpH.length = i = 0, j = paramH.length;
-                if( isCors ) {
-                    l = '';
-                    while( i < j ){
-                            l += encodeURIComponent( k = paramH[i++] ) + '=' + encodeURIComponent( paramH[i++] ) + '&';
-                            if( httpHeader[k] ) httpH[httpH.length] = k;
-                    }
-                    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
-                    arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
-                    xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
-                    xhr.setRequestHeader( 'bscorsproxy', 'bscorsproxy' );
-                } else {
-                    while( i < j ){
-                            xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
-                            if( httpHeader[k] ) httpH[httpH.length] = k;
-                    }
-                    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
-                }
+		if( isCors ) {
+			l = '';
+			while( i < j ){
+				l += encodeURIComponent( k = paramH[i++] ) + '=' + encodeURIComponent( paramH[i++] ) + '&';
+				if( httpHeader[k] ) httpH[httpH.length] = k;
+			}
+			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
+			arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
+			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+			xhr.setRequestHeader( 'bscorsproxy', 'bscorsproxy' );
+		} else {
+			while( i < j ){
+				xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
+				if( httpHeader[k] ) httpH[httpH.length] = k;
+			}
+			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
+		}
 		xhr.send(arg);
 		if( !end ) return i = xhr.responseText, rq(xhr), i;
 	},
