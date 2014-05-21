@@ -37,7 +37,7 @@ function isBS($decodedProtocol) {
 function setResponseHeaders($svr) {
     header('Access-Control-Allow-Origin: ' . $svr['HTTP_ORIGIN']);
     header('Access-Control-Allow-Methods: POST, OPTIONS');   
-    header('Access-Control-Allow-Headers: Cache-Control, Content-Type');  
+    header('Access-Control-Allow-Headers: Cache-Control, Content-Type, ABCD');  
     header('Access-Control-Allow-Credentials: true');
     header("Content-Type: application/x-www-form-urlencoded;charset=utf-8");        
     header('Access-Control-Max-Age: 5');

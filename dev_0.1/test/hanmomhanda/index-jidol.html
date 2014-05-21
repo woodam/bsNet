@@ -29,10 +29,13 @@ bs(function(){
 //    bs.put( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
     
     
-    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
-    bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
-    bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
-    bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2');     
+    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); //OK
+//    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2'); //OK
+//    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2', '@Custom1', 'CustomValue1'); //ERROR
+//    bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2');  //OK
+//    bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2', '@Custom1', 'CustomValue1'); //ERROR
+//    bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2'); 
+//    bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value1', '파라미터2', '값2');     
 });
 </script>
 </body>

@@ -81,7 +81,7 @@ detectDOM = function( W, detect ){
 	var doc = W['document'], cssPrefix, stylePrefix, transform3D, keyframe = W['CSSRule'],
 	b = doc.body, bStyle = b.style, div = doc.createElement('div'),
 	c = doc.createElement('canvas'), a = doc.createElement('audio'), v = doc.createElement('video'), k, t0;
-	
+
 	if( !detect ) detect = {};
 	if( !doc ) return detect;
 	div.innerHTML = '<div data-test-ok="234">a</div>',
@@ -168,7 +168,7 @@ CORE:
 (function(trim){
 	var rc = 0, rand, template,
 	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {},
-	url, paramH, paramP, param, xhr, rqPool, rq, httpHeader, httpH, http;
+	url, paramH, paramP, param, xhr, xdr, httpHeader, httpH, http;
 	BASE:
 	fn( 'obj', function( key, v ){var t0 = key.replace( trim, '' ).toUpperCase(); t0 != key ? err( 1002, key ) : bs[t0] ? err( 2002, t0 ) : bs[t0] = v;} ),
 	fn( 'cls', function( key, v ){
@@ -297,72 +297,84 @@ CORE:
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
 	})(),
-	rqPool = {_l:0},
-	rq = function(x){
-		if( x ){
-			if( x.readyState != 4 ) x.abort();
-			x.onreadystatechange = null, rqPool[rqPool._l++] = x;
-		}else return rqPool._l ? rqPool[--rqPool._l] : xhr();
-	},
+    xdr = W['XDomainRequest'] ? function(){return new XDomainRequest;} : function(){return null;},
 	paramH = [], paramP = [],
 	param = function(arg){
 		var i, j, k;
-		if( !arg || ( j = arg.length ) < 4 ) return '';
+                if( !arg || ( j = arg.length ) < 4 ) return '';
 		paramH.length = paramP.length = 0, i = 2;
 		while( i < j )
 			if ( arg[i].charAt(0) == '@' ) paramH[paramH.length] = arg[i++].substr(1), paramH[paramH.length] = arg[i++];
 			else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++] ) + '=' + encodeURIComponent( arg[i++] );
 			else k = encodeURIComponent( arg[i++] );
-		return k || paramP.join('&');
+                return k || paramP.join('&');
 	},
 	url = function( url, arg ){
 		var t0 = url.split('#');
 		return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + '&' + param(arg) + ( t0[1] ? '#' + t0[1] : '' );
 	},
 	httpHeader = {}, httpH = [],
-	http = function( type, end, url, arg ){
-		var xhr, timeId, i, j, k;
-        var tkn='://', cpurl = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/hanmomhanda/corsproxy0.1_1.php', protocol;
-//        var tkn='://', cpurl = 'http://apexsoft-svr1.iptime.org/bsJScorsProxy/dev_0.1/test/hanmomhanda/corsproxy0.1_1.php', protocol;
-console.log('==============================================');
-console.log('org type : ' + type);
-console.log('org url : ' + url);
-console.log('org arg : ' + arg);
-        if(url.slice(0,4)=='http' && url.substring(url.indexOf(tkn)+tkn.length).slice(0, document.domain.length)!=document.domain) {            
-//            protocol = {'url' : url.substring(0, url.indexOf('?')),'customheader' : 'X_BSJSCORS','method' : type};
-            protocol = {'url' : url,'customheader' : 'X_BSJSCORS','method' : type};
-            arg=(type=='GET'?url.substring(url.indexOf('&')+1):arg)+'&postdata='+encodeURIComponent(JSON.stringify(protocol));
-            type = 'POST';            
-//            arg+='&postdata='+encodeURIComponent(JSON.stringify(protocol));
-            url = cpurl+'?bsNC=' + bs.rand( 1000, 9999 );
-console.log('---------------------');
-console.log('cors type : ' + type);
-console.log('cors url : ' + url);
-console.log('cors arg : ' + arg);
+	http = function( type, end, U, arg ){
+		var xrq, timeId, i, j, k, l;        
+		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
+        httpH.length = i = 0, j = paramH.length;        
+		if( U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, document.domain.length) !== document.domain ) {
+			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg),
+			U = 'http://api.bsplugin.com/corsproxy/corsproxy0.1.php',
+            type = 'POST', l = '';
+			while( i < j ){
+				l += encodeURIComponent( k = paramH[i++] ) + '=' + encodeURIComponent( paramH[i++] ) + '&';
+				if( httpHeader[k] ) httpH[httpH.length] = k;
+			}
+			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
+			arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
+            
+            if ( detect.browser == 'ie' && detect.browserVer < 10 && detect.browserVer >= 8 ) {
+                xrq = xdr();
+                xrq.onerror = xrq.ontimeout = null; //에러 처리 필요
+                xrq.open( type, U );
+            } else {
+                xrq = xhr();
+                xrq.open( type, U, end ? true : false ),
+                xrq.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+                xrq.setRequestHeader( 'bscorsproxy', 'bscorsproxy' );
+            }            
+		} else {
+            xrq = xhr();
+            xrq.open(type, U, end ? true : false);
+            while( i < j ){
+                xrq.setRequestHeader( k = paramH[i++], paramH[i++] );
+                if( httpHeader[k] ) httpH[httpH.length] = k;
+            }
+            for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xrq.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
         }
-		xhr = rq();
-		if( end ) xhr.onreadystatechange = function(){
-			var text, status;
-			if( xhr.readyState != 4 || timeId < 0 ) return;
-			clearTimeout(timeId), timeId = -1,
-			text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
-			status = text ? xhr.getAllResponseHeaders() : xhr.status,
-			rq(xhr), end( text, status );
-		}, timeId = setTimeout( function(){
-			if( timeId > -1 ) timeId = -1, rq(xhr), end( null, 'timeout' );
-		}, timeout );
-		xhr.open( type, url, end ? true : false ),
-		httpH.length = i = 0, j = paramH.length;
-		while( i < j ){
-			xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
-			if( httpHeader[k] ) httpH[httpH.length] = k;
-		}
-		for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
-		xhr.send(arg);
-		if( !end ) return i = xhr.responseText, rq(xhr), i;
+        if( end ) {
+            if(xrq.hasOwnProperty('onload')) {
+                xrq.onload = function(){
+                    if( timeId < 0 ) return;
+                    clearTimeout(timeId), timeId = -1,
+                    end( xrq.responseText );
+                }, timeId = setTimeout( function(){
+                    if( timeId > -1 ) timeId = -1, end( null, 'timeout' );
+                }, timeout );                
+            } else if (xrq.hasOwnProperty(onreadystatechange)) {
+                xrq.onreadystatechange = function(){
+                    var text, status;
+                    if( xrq.readyState != 4 || timeId < 0 ) return;
+                    clearTimeout(timeId), timeId = -1,
+                    text = xrq.status == 200 || xrq.status == 0 ? xrq.responseText : null,
+                    status = text ? xrq.getAllResponseHeaders() : xrq.status,
+                    end( text, status );
+                }, timeId = setTimeout( function(){
+                    if( timeId > -1 ) timeId = -1, end( null, 'timeout' );
+                }, timeout );
+            }
+        }
+		xrq.send(arg);
+		if( !end ) return i = xrq.responseText, i;
 	},
-	mk = function(m){return function( end, U ){return http( m, end, url(U), param(arguments) );};},
-	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', function( end, U ){return http( 'GET', end, url( U, arguments ) );} ),
+	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
+	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
 })(trim);
 PLUGIN:
@@ -565,7 +577,7 @@ fn( 'ev', (function(){
 						}
 						W.scrollTo( arguments[0], arguments[1] );
 					};
-				})( W, doc, detect.root, doc.documentElement )
+				})( W, doc, detect.root, doc.documentElement ),
 			},
 			win.sizer = (function( W, doc ){
 				var t0 = {w:0, h:0}, t1, size, docEl, docBody;
@@ -693,7 +705,7 @@ fn( 'ev', (function(){
 						t0 = target[i], t0.parentNode.removeChild(t0);
 						if( t0.nodeType == 3 ) continue;
 						if( data = t0.getAttribute('data-bs') ){
-							if( t1 = data.BSdomE ) data.BSdomE = t1.dom = t1.handleEvent = null, ev(t1), console.log('aaa');
+							if( t1 = data.BSdomE ) data.BSdomE = t1.dom = t1.handleEvent = null, ev(t1);
 							domData( t0, null );
 						}
 						j = t0.attributes.length;
