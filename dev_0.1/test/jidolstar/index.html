@@ -20,7 +20,6 @@
 <script src="bsjs.0.4.js"></script>    
 <script src="http://projectbs.github.io/bsJSTest/bsTest.js"></script>
 <script src="http://projectbs.github.io/bsJSTest/0.3/printer.js"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/json2/20130526/json2.min.js"></script>
 <script>
 bs( function(){
     (function() {
@@ -71,12 +70,11 @@ bs( function(){
             'string', t.headers['Custom'], 'test',
         ]);         
     })();
-    
     (function() {
         var t;
         bsTest.tear( 'Ajax Sync - CorsProxy', function(){ console.log('same domain') });
         //sync - get
-        t = JSON.parse( bs.get( null, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8', '@Custom', 'test' ) );
+        t = JSON.parse( bs.get( null, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8', '@Custom', 'test' ) );
         console.log( 'sync - get', t );
         bsTest.apply( null, [
             'sync - get',
@@ -120,7 +118,6 @@ bs( function(){
             'string', t.headers['Custom'], 'test',
         ]);         
     })();
-    
     
     function test1() {
         var cnt = 0;
@@ -256,33 +253,5 @@ bs( function(){
     
 }); 
 </script>
-<!--
-<script>
-bs(function(){
-    function end( data, option ) {
-        if( data !== null ){
-            bs.Dom('#output').S('html+', '[option]\n' + option);
-            bs.Dom('#output').S('html+', '\n' + data);
-        }else if( option == 'timeout' ){
-            bs.Dom('#output').S('html+','timeout');
-        }else{
-            bs.Dom('#output').S('html+', 'error code :'+ option);
-        }
-        bs.Dom('#output').S('html+', '\n-----------------------------------------------------------------------------------\n');
-    }
-        
-    bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
-    bs.post( end, 'testdata.php','param1', 'value', 'param2', 'value2', '@Custom', 'a' );
-    bs.get( end, 'testdata.php?a=b','param1', 'value', 'param2', 'value2' );
-    bs.delete( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
-    bs.put( end, 'testdata.php','param1', 'value', 'param2', 'value2' );
-    
-    bs.post( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-    bs.get( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-    bs.put( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-    bs.delete( end, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','param1', 'value', 'param2', 'value2'); 
-});
-</script>
--->
 </body>
 </html>

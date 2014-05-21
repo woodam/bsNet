@@ -166,9 +166,9 @@ if( !W['JSON'] ) W['JSON'] = {
 if( !W['console'] ) W['console'] = {log:none};
 CORE:
 (function(trim){
-	var rc = 0, rand, template, a,
+	var rc = 0, rand, template,
 	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {},
-	url, paramH, paramP, param, xhr, rqPool, rq, httpHeader, httpH, http;
+	url, paramH, paramP, param, xhr, /*rqPool,*/ rq, httpHeader, httpH, http;
 	BASE:
 	fn( 'obj', function( key, v ){var t0 = key.replace( trim, '' ).toUpperCase(); t0 != key ? err( 1002, key ) : bs[t0] ? err( 2002, t0 ) : bs[t0] = v;} ),
 	fn( 'cls', function( key, v ){
@@ -297,12 +297,18 @@ CORE:
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
 	})(),
-	rqPool = {_l:0},
+	//rqPool = {_l:0},
 	rq = function(x){
+		if( x ){
+			if( x.readyState != 4 ) x.abort();
+			x.onreadystatechange = null;
+		}else return xhr();
+                /*
 		if( x ){
 			if( x.readyState != 4 ) x.abort();
 			x.onreadystatechange = null, rqPool[rqPool._l++] = x;
 		}else return rqPool._l ? rqPool[--rqPool._l] : xhr();
+                */
 	},
 	paramH = [], paramP = [],
 	param = function(arg){
@@ -322,8 +328,7 @@ CORE:
 	httpHeader = {}, httpH = [],
 	http = function( type, end, U, arg ){
 		var xhr, timeId, isCors, i, j, k, l;
-                if( !a ) a = document.createElement('a');
-                a.href = U, isCors = location.hostname == a.hostname && location.protocol == a.protocol ? false : true;
+                isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, document.domain.length) !== document.domain ? true : false;
                 if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
                 if( isCors ) {
                     arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg);
@@ -351,7 +356,7 @@ CORE:
                     }
                     for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
                     arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
-                    xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' );
+                    xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
                     xhr.setRequestHeader( 'bscorsproxy', 'bscorsproxy' );
                 } else {
                     while( i < j ){

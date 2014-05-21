@@ -1,9 +1,9 @@
 <?php
 header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
 header('Access-Control-Allow-Credentials: true');
-header('Access-Control-Max-Age: 8');    // cache for 1 day
+header('Access-Control-Max-Age: 5');   
 header('Access-Control-Allow-Methods: POST, OPTIONS');   
-header('Access-Control-Allow-Headers: bscorsproxy, Content-Type');       
+header('Access-Control-Allow-Headers: bscorsproxy, Content-Type, Cache-Control');       
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS' || !isset($_SERVER['HTTP_BSCORSPROXY']) ) {
     __error('Wrong access');
     exit;
