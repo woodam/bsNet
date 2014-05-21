@@ -81,7 +81,7 @@ detectDOM = function( W, detect ){
 	var doc = W['document'], cssPrefix, stylePrefix, transform3D, keyframe = W['CSSRule'],
 	b = doc.body, bStyle = b.style, div = doc.createElement('div'),
 	c = doc.createElement('canvas'), a = doc.createElement('audio'), v = doc.createElement('video'), k, t0;
-	
+
 	if( !detect ) detect = {};
 	if( !doc ) return detect;
 	div.innerHTML = '<div data-test-ok="234">a</div>',
@@ -112,18 +112,18 @@ detectDOM = function( W, detect ){
 		transition:stylePrefix + 'Transition' in bStyle || 'transition' in bStyle, transform3D:transform3D, keyframe:keyframe,
 		transform:stylePrefix + 'Transform' in bStyle || 'transform' in bStyle,
 		//html5
-		canvas:c ? 1 : 0, canvasText:c && c.getContext('2d').fillText,
+		canvas:c ? 1 : 0, canvasText:c && c['getContext'] && c.getContext('2d').fillText,
 		audio:a ? 1 : 0,
-		audioMp3:a && a.canPlayType('audio/mpeg;').indexOf('no') < 0 ? 1 : 0,
-		audioOgg:a && a.canPlayType('audio/ogg;').indexOf('no') < 0 ? 1 : 0,
-		audioWav:a && a.canPlayType('audio/wav;').indexOf('no') < 0 ? 1 : 0,
-		audioMp4:a && a.canPlayType('audio/mp4;').indexOf('no') < 0 ? 1 : 0,
+		audioMp3:a && a['canPlayType'] && a.canPlayType('audio/mpeg;').indexOf('no') < 0 ? 1 : 0,
+		audioOgg:a && a['canPlayType'] && a.canPlayType('audio/ogg;').indexOf('no') < 0 ? 1 : 0,
+		audioWav:a && a['canPlayType'] && a.canPlayType('audio/wav;').indexOf('no') < 0 ? 1 : 0,
+		audioMp4:a && a['canPlayType'] && a.canPlayType('audio/mp4;').indexOf('no') < 0 ? 1 : 0,
 		video:v ? 1 : 0,
 		videoCaption:'track' in doc.createElement('track') ? 1 : 0,
 		videoPoster:v && 'poster' in v ? 1 : 0,
-		videoWebm:v && v.canPlayType( 'video/webm; codecs="vp8,mp4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
-		videH264:v && v.canPlayType( 'video/mp4; codecs="avc1.42E01E,m4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
-		videoTeora:v && v.canPlayType( 'video/ogg; codecs="theora,vorbis"' ).indexOf( 'no' ) == -1 ? 1 : 0,
+		videoWebm:v && v['canPlayType'] && v.canPlayType( 'video/webm; codecs="vp8,mp4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
+		videH264:v && v['canPlayType'] && v.canPlayType( 'video/mp4; codecs="avc1.42E01E,m4a.40.2"' ).indexOf( 'no' ) == -1 ? 1 : 0,
+		videoTeora:v && v['canPlayType'] && v.canPlayType( 'video/ogg; codecs="theora,vorbis"' ).indexOf( 'no' ) == -1 ? 1 : 0,
 		local:W.localStorage && 'setItem' in localStorage,
 		geo:navigator.geolocation, worker:W.Worker, file:W.FileReader, message:W.postMessage,
 		history:'pushState' in history, offline:W.applicationCache,
