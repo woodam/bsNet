@@ -5,8 +5,8 @@
  */
 ( function( W, N ){
 'use strict';
-var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/corsproxy0.1.php',
-	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 0,
+var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/2/corsproxy0.1.php',
+	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 1,
 	bs = W[N = N || 'bs'] = function(f){que ? ( que[que.length] = f ) : f();},
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );},
 	fn = bs.fn = function( key, v ){var t0 = key.replace( trim, '' ).toLowerCase(); t0 != key ? err( 1001, key ) : bs[t0] ? err( 2001, t0 ) : bs[t0] = v;};
@@ -168,7 +168,7 @@ CORE:
 (function(trim){
 	var rc = 0, rand, template,
 	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {},
-	url, paramH, paramP, param, xhr, rq, httpHeader, httpH, http;
+	url, paramH, paramP, param, xhr, cors, isXdr, httpHeader, httpH, http, corsAccessKey;
 	BASE:
 	fn( 'obj', function( key, v ){var t0 = key.replace( trim, '' ).toUpperCase(); t0 != key ? err( 1002, key ) : bs[t0] ? err( 2002, t0 ) : bs[t0] = v;} ),
 	fn( 'cls', function( key, v ){
@@ -297,12 +297,7 @@ CORE:
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
 	})(),
-	rq = function(x){
-		if( x ){
-			if( x.readyState != 4 ) x.abort();
-			x.onreadystatechange = null;
-		}else return xhr();
-	},
+	cors = W['XDomainRequest'] ? function(){return isXdr = true, new XDomainRequest;} : W['XMLHttpRequest'] ? function(){ return isXdr = false, new XMLHttpRequest;} : none,
 	paramH = [], paramP = [],
 	param = function(arg){
 		var i, j, k;
@@ -320,49 +315,89 @@ CORE:
 	},
 	httpHeader = {}, httpH = [],
 	http = function( type, end, U, arg ){
-		var xhr, timeId, isCors, i, j, k, l;
-		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, document.domain.length) !== document.domain ? true : false;
+		var x, timeId, isCors, i, j, k, l, m;
+		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
 		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
-		if( isCors ) {
-			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg);
-			U = CORSPROXY;
-		} 
-		xhr = rq();
-		if( end ) xhr.onreadystatechange = function(){
+		if( isCors ){
+		    if( !corsAccessKey ) err(5003, 'CORSPROXY서비스를 사용하기 위해서는 접근키가 필요합니다.');
+		    x = cors(); if( !x ) err(5001, '이 브라우져는 CORS를 지원하지 않습니다.');
+		    arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg) + '&key='+encodeURIComponent(corsAccessKey);
+		    if(!end) err(5002, 'CORS는 동기통신을 지원하지 않습니다.');
+		    if(isXdr){
+			m = true, x.onload = function(){
+			    if( timeId < 0 ) return;
+			    clearTimeout(timeId), timeId = -1, m = false, x.onload  = x.onerror = null, 
+			    end( x.responseText, 200 );
+			}, x.onerror = function(){
+			    if( timeId > -1 ){
+				if( m ) x.abort();
+				timeId = -1, m = false, x.onload = x.onerror = null;
+			    }
+			    end( null, 'xdr error' );
+			}, timeId = setTimeout( function(){
+			    if( timeId > -1 ){
+				if( m ) x.abort();
+				timeId = -1, m = false, x.onload = x.onerror = null, end( null, 'timeout' );
+			    }
+			}, timeout );
+			x.open( 'POST', CORSPROXY );
+		    }else{
+			x.onreadystatechange = function(){
+			    var text, status;
+			    if( x.readyState != 4 || timeId < 0 ) return;
+			    clearTimeout(timeId), timeId = -1,
+			    text = x.status == 200 || x.status == 0 ? x.responseText : null,
+			    status = text ? x.getAllResponseHeaders() : x.status,
+			    x.onreadystatechange = null, end( text, status );
+			}, timeId = setTimeout( function(){
+			    if( timeId > -1 ){
+				if( x.readyState != 4 ) x.abort();
+				timeId = -1, x.onreadystatechange = null, end( null, 'timeout' );
+			    }
+			}, timeout );
+			x.open( 'POST', CORSPROXY, true ),
+			x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+			x.withCredentials = true;
+		    }
+		    httpH.length = i = 0, j = paramH.length;
+		    l = '';
+		    while( i < j ){
+			l += encodeURIComponent(k = paramH[i++]) + '=' + encodeURIComponent( paramH[i++] ) + '&';
+			if( httpHeader[k] ) httpH[httpH.length] = k;
+		    }
+		    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
+		    arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
+		    x.send(arg);
+		}else{
+		    x = xhr();
+		    if( end ) x.onreadystatechange = function(){
 			var text, status;
-			if( xhr.readyState != 4 || timeId < 0 ) return;
+			if( x.readyState != 4 || timeId < 0 ) return;
 			clearTimeout(timeId), timeId = -1,
-			text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
-			status = text ? xhr.getAllResponseHeaders() : xhr.status,
-			rq(xhr), end( text, status );
-		}, timeId = setTimeout( function(){
-			if( timeId > -1 ) timeId = -1, rq(xhr), end( null, 'timeout' );
-		}, timeout );
-		xhr.open( isCors ? 'POST' : type, U, end ? true : false ),
-		httpH.length = i = 0, j = paramH.length;
-		if( isCors ) {
-			l = '';
-			while( i < j ){
-				l += encodeURIComponent( k = paramH[i++] ) + '=' + encodeURIComponent( paramH[i++] ) + '&';
-				if( httpHeader[k] ) httpH[httpH.length] = k;
+			text = x.status == 200 || x.status == 0 ? x.responseText : null,
+			status = text ? x.getAllResponseHeaders() : x.status,
+			x.onreadystatechange = null, end( text, status );
+		    }, timeId = setTimeout( function(){
+			if( timeId > -1 ){
+			    if( x.readyState != 4 ) x.abort();
+			    timeId = -1, x.onreadystatechange = null, end( null, 'timeout' );
 			}
-			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
-			arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
-			xhr.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
-			xhr.setRequestHeader( 'bscorsproxy', 'bscorsproxy' );
-		} else {
-			while( i < j ){
-				xhr.setRequestHeader( k = paramH[i++], paramH[i++] );
-				if( httpHeader[k] ) httpH[httpH.length] = k;
-			}
-			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], xhr.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
+		    }, timeout );
+		    x.open( type, U, end ? true : false ),
+		    httpH.length = i = 0, j = paramH.length;
+		    while( i < j ){
+			x.setRequestHeader( k = paramH[i++], paramH[i++] );
+			if( httpHeader[k] ) httpH[httpH.length] = k;
+		    }
+		    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], x.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
+		    x.send(arg);
+		    if( !end ) return i = x.responseText, x.onreadystatechange = null, i;
 		}
-		xhr.send(arg);
-		if( !end ) return i = xhr.responseText, rq(xhr), i;
 	},
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
+	fn( 'cors', function( k ){ corsAccessKey = k; } )
 })(trim);
 PLUGIN:
 (function( register, depends ){

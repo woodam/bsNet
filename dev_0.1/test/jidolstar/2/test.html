@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>bs 0.4 ajax Test suit</title>
+<meta charset="utf-8"/>
+<meta name="keywords" content="bsjs 0.4" />
+<meta name="description" content="bsjs 0.4 Test suite" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+</head>
+<body>
+<h1>bsjs 0.4 ajax Test suit</h1>
+<div id="stage"></div>
+<br clear="both">
+<div id="result"></div>
+<div id="test"></div>
+<script src="bsjs.0.4.js"></script>    
+<script src="http://projectbs.github.io/bsJSTest/bsTest.js"></script>
+<script src="http://projectbs.github.io/bsJSTest/0.3/printer.js"></script>
+<script>
+bs( function(){
+    (function() {
+        var t;
+        bsTest.tear( 'Ajax Sync - Same domain', function(){ console.log('same domain') });
+        //sync - get
+        t = JSON.parse( bs.get( null, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8', '@Custom', 'test' ) );
+        console.log( 'sync - get', t );
+        bsTest.apply( null, [
+            'sync - get',
+            'string', t.method, 'GET', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]);
+        //sync - post
+        t = JSON.parse( bs.post( null, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' ) );
+        console.log( 'sync - post', t );
+        bsTest.apply( null, [
+            'sync - post',
+            'string', t.method, 'POST', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]);      
+        //sync - put
+        t = JSON.parse( bs.put( null, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' ) );
+        console.log( 'sync - put', t );
+        bsTest.apply( null, [
+            'sync - put',
+            'string', t.method, 'PUT', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]); 
+        //sync - delete
+        t = JSON.parse( bs.delete( null, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' ) );
+        console.log( 'sync - delete', t );
+        bsTest.apply( null, [
+            'sync - delete',
+            'string', t.method, 'DELETE', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]);         
+    })();
+    (function() {
+        var t;
+        bsTest.tear( 'Ajax Sync - CorsProxy', function(){ console.log('same domain') });
+        //sync - get
+        t = JSON.parse( bs.get( null, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8', '@Custom', 'test' ) );
+        console.log( 'sync - get', t );
+        bsTest.apply( null, [
+            'sync - get',
+            'string', t.method, 'GET', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]);
+        //sync - post
+        t = JSON.parse( bs.post( null, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' ) );
+        console.log( 'sync - post', t );
+        bsTest.apply( null, [
+            'sync - post',
+            'string', t.method, 'POST', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]);      
+        //sync - put
+        t = JSON.parse( bs.put( null, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' ) );
+        console.log( 'sync - put', t );
+        bsTest.apply( null, [
+            'sync - put',
+            'string', t.method, 'PUT', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]); 
+        //sync - delete
+        t = JSON.parse( bs.delete( null, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' ) );
+        console.log( 'sync - delete', t );
+        bsTest.apply( null, [
+            'sync - delete',
+            'string', t.method, 'DELETE', 
+            'string', t.data.k1, 'v1',
+            'string', t.data.k2, 'v2',
+            'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+            'string', t.headers['Custom'], 'test',
+        ]);         
+    })();
+    
+    function test1() {
+        var cnt = 0;
+        bsTest.tear( 'Ajax Async - Same domain', function(){ console.log('same domain') });
+        bs.get( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - get', t );
+            bsTest.apply( null, [
+                'async - get',
+                'string', t.method, 'GET', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8', '@Custom', 'test' );
+        
+        bs.post( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - post', t );
+            bsTest.apply( null, [
+                'async - post',
+                'string', t.method, 'POST', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' );
+        
+        bs.put( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - put', t );
+            bsTest.apply( null, [
+                'async - put',
+                'string', t.method, 'PUT', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' );
+        
+        bs.delete( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - delete', t );
+            bsTest.apply( null, [
+                'async - delete',
+                'string', t.method, 'DELETE', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' );
+        
+        function next() {
+            cnt++;
+            if( cnt == 4 ) test2();
+        }
+    }
+    test1();
+
+
+    function test2() {
+        var cnt = 0;
+        bsTest.tear( 'Ajax Async - CorsProxy', function(){ console.log('same domain') });
+        bs.get( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - get', t );
+            bsTest.apply( null, [
+                'async - get',
+                'string', t.method, 'GET', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8', '@Custom', 'test' );        
+        bs.post( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - post', t );
+            bsTest.apply( null, [
+                'async - post',
+                'string', t.method, 'POST', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' );
+        bs.put( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - put', t );
+            bsTest.apply( null, [
+                'async - put',
+                'string', t.method, 'PUT', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' );
+        bs.delete( function end( data, option ) {
+            var t = JSON.parse( data );
+            console.log( 'async - delete', t );
+            bsTest.apply( null, [
+                'async - delete',
+                'string', t.method, 'DELETE', 
+                'string', t.data.k1, 'v1',
+                'string', t.data.k2, 'v2',
+                'string', t.headers['Content-Type'], 'application/x-www-form-urlencoded; charset=UTF-8',
+                'string', t.headers['Custom'], 'test',
+            ]);
+            next();
+        }, 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/testdata.php','k1', 'v1', 'k2', 'v2', '@Custom', 'test' );        
+        function next() {
+            cnt++;
+            if( cnt == 4 ) {
+                
+            }
+        }        
+    }
+    
+
+    
+}); 
+</script>
+</body>
+</html>
