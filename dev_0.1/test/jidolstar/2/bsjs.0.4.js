@@ -6,7 +6,7 @@
 ( function( W, N ){
 'use strict';
 var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/2/corsproxy0.1.php',
-	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 1,
+	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 0,
 	bs = W[N = N || 'bs'] = function(f){que ? ( que[que.length] = f ) : f();},
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );},
 	fn = bs.fn = function( key, v ){var t0 = key.replace( trim, '' ).toLowerCase(); t0 != key ? err( 1001, key ) : bs[t0] ? err( 2001, t0 ) : bs[t0] = v;};
@@ -20,17 +20,16 @@ detectWindow = function( W, detect ){
 	ie = function(){
 		if( agent.indexOf('msie') < 0 && agent.indexOf('trident') < 0 ) return;
 		if( agent.indexOf('iemobile') > -1 ) os = 'winMobile';
-		return browser = 'ie', bv = agent.indexOf('msie') < 0 ? 11 : parseFloat(/msie ([\d]+)/.exec(agent)[1]);
+		return browser = 'ie', bv = agent.indexOf('msie 7') > -1 && agent.indexOf('trident') > -1 ? -1 : agent.indexOf('msie') < 0 ? 11 : parseFloat(/msie ([\d]+)/.exec(agent)[1]);
 	},
 	chrome = function(){
 		if( agent.indexOf( i = 'chrome' ) < 0 && agent.indexOf( i = 'crios' ) < 0 ) return;
 		return browser = 'chrome', bv = parseFloat( ( i == 'chrome' ? /chrome\/([\d]+)/ : /crios\/([\d]+)/ ).exec(agent)[1] );
 	},
-    firefox = function(){return agent.indexOf('firefox') < 0 ? 0 : browser = 'firefox', bv = /firefox\/([\d]+)/.exec(agent), bv==null ? 0: parseFloat(/firefox\/([\d]+)/.exec(agent)[1]);},
-	safari = function(){return agent.indexOf('safari') < 0 ? 0 : browser = 'safari', bv = parseFloat(/safari\/([\d]+)/.exec(agent)[1]);},
-	opera = function(){return agent.indexOf('opera') < 0 ? 0 : browser = 'opera', bv = parseFloat( /version\/([\d]+)/.exec(agent)[1] );},
-	naver = function(){return agent.indexOf( 'naver' ) < 0 ? 0 : browser = 'naver';};
-	
+    firefox = function(){return agent.indexOf('firefox') < 0 ? 0 : ( browser = 'firefox', bv = parseFloat(/firefox\/([\d]+)/.exec(agent)[1]) );},
+	safari = function(){return agent.indexOf('safari') < 0 ? 0 : ( browser = 'safari', bv = parseFloat(/safari\/([\d]+)/.exec(agent)[1]) );},
+    opera = function(){var i; return (agent.indexOf( i = 'opera') < 0 && agent.indexOf( i = 'opr' ) < 0 ) ? 0 : ( browser = 'opera', bv = ( i == 'opera' ) ? parseFloat(/version\/([\d]+)/.exec(agent)[1]) : parseFloat(/opr\/([\d]+)/.exec(agent)[1]) );},
+	naver = function(){return agent.indexOf('naver') < 0 ? 0 : browser = 'naver';};
 	if( !detect ) detect = {};
 	if( agent.indexOf('android') > -1 ){
 		browser = os = 'android';
@@ -39,13 +38,13 @@ detectWindow = function( W, detect ){
 		if( i = /android ([\d.]+)/.exec(agent) ) i = i[1].split('.'), osv = parseFloat( i[0] + '.' + i[1] );
 		else osv = 0;
 		if( i = /safari\/([\d.]+)/.exec(agent) ) bv = parseFloat(i[1]);
-		naver() || chrome() || firefox() || opera();
+		naver() || opera() || chrome() || firefox();
 	}else if( agent.indexOf( i = 'ipad' ) > -1 || agent.indexOf( i = 'iphone' ) > -1 ){
 		device = i == 'ipad' ? 'tablet' : 'mobile', browser = os = i;
 		if( i = /os ([\d_]+)/.exec(agent) ) i = i[1].split('_'), osv = parseFloat( i[0] + '.' + i[1] );
 		else osv = 0;
 		if( i = /mobile\/([\S]+)/.exec(agent) ) bv = parseFloat(i[1]);
-		naver() || chrome() || firefox() || opera();
+		naver() || opera() || chrome() || firefox();
 	}else{
 		(function(){
 			var plug, t0, e;
@@ -61,12 +60,12 @@ detectWindow = function( W, detect ){
 			else if( agent.indexOf( i + '6.1' ) > -1 ) osv = '7';
 			else if( agent.indexOf( i + '6.2' ) > -1 ) osv = '8';
 			else if( agent.indexOf( i + '6.3' ) > -1 ) osv = '8.1';
-			ie() || chrome() || firefox() || safari() || opera();
+			ie() || opera() || chrome() || firefox() || safari();
 		}else if( platform.indexOf('mac') > -1 ){      
 			os = 'mac',
 			i = /os x ([\d._]+)/.exec(agent)[1].replace( '_', '.' ).split('.'),
 			osv = parseFloat( i[0] + '.' + i[1] ),
-			chrome() || firefox() || safari() || opera();
+            opera() || chrome() || firefox() || safari();
 		}else{
 			os = app.indexOf('x11') > -1 ? 'unix' : app.indexOf('linux') > -1 ? 'linux' : 0,
 			chrome() || firefox();
@@ -87,7 +86,9 @@ detectDOM = function( W, detect ){
 	div.innerHTML = '<div data-test-ok="234">a</div>',
 	div = div.getElementsByTagName( 'div' )[0];
 	switch( detect.browser ){
-	case'ie': cssPrefix = '-ms-', stylePrefix = 'ms'; transform3D = detect.browserVer > 9 ? 1 : 0;
+	case'ie':
+		if( detect.browserVer == -1 ) detect.browserVer = !c ? 8 : !( 'msTransition' in bStyle ) && !( 'transition' in bStyle ) ? 9 : c.getContext('webgl') || c.getContext("experimental-webgl") ? 11 : 10;
+		cssPrefix = '-ms-', stylePrefix = 'ms'; transform3D = detect.browserVer > 9 ? 1 : 0;
 		if( detect.browserVer == 6 ) doc.execCommand( 'BackgroundImageCache', false, true ), bStyle.position = 'relative';
 		break;
 	case'firefox': cssPrefix = '-moz-', stylePrefix = 'Moz'; transform3D = 1; break;
@@ -599,7 +600,7 @@ fn( 'ev', (function(){
 						}
 						W.scrollTo( arguments[0], arguments[1] );
 					};
-				})( W, doc, detect.root, doc.documentElement ),
+				})( W, doc, detect.root, doc.documentElement )
 			},
 			win.sizer = (function( W, doc ){
 				var t0 = {w:0, h:0}, t1, size, docEl, docBody;
@@ -778,22 +779,16 @@ fn( 'ev', (function(){
 				};
 			})(doc),
 			clsfn.query = (function( doc, trim ){
-				var compare = (function(){
-					var r0 = /"|'/g, i, j,//"
-					mT0 = {'~':1, '|':1, '!':1, '^':1, '$':1, '*':1},
-					mTag = {'first-of-type':1, 'last-of-type':1, 'only-of-type':1},
-					enabled = {INPUT:1, BUTTON:1, SELECT:1, OPTION:1, TEXTAREA:1},
-					checked = {INPUT:1, radio:1, checkbox:1, OPTION:2},
-					skip ={'target':1, 'active':1, 'visited':1, 'first-line':1, 'first-letter':1, 'hover':1, 'focus':1, 'after':1, 'before':1, 'not':1, 'selection':1, 
-						'eq':1, 'gt':1, 'lt':1,
-						'valid':1, 'invalid':1, 'optional':1, 'in-range':1, 'out-of-range':1, 'read-only':1, 'read-write':1, 'required':1
-					};
-					return function( el, token ){
-						var data, time, indexes, parent, children, tag, update, dir, t0, t1,t2,  k, v, i, j, m;
-						switch( token.charAt(0) ){
-						case'#':return token.substr(1) == el.id;
-						case'.':return !( t0 = el.className ) ? 0 : ( k = token.substr(1), t0.indexOf(' ') > -1 ? k == t0 : t0.split(' ').indexOf(k) > -1 );
-						case'[':
+				var compare = {
+					'#':function(el, token){return token.substr(1) == el.id;},
+					'.':function(el, token){
+						var t0, k;
+						return !( t0 = el.className ) ? 0 : ( k = token.substr(1), t0.indexOf(' ') > -1 ? k == t0 : t0.split(' ').indexOf(k) > -1 );
+					},
+					'[':(function(){
+						var mT0 = {'~':1, '|':1, '!':1, '^':1, '$':1, '*':1};
+						return function(el, token){
+							var t0, t1, i, v;
 							if( ( i = token.indexOf('=') ) == -1 ) return el.getAttribute(token.substr(1)) === null ? 0 : 1;
 							if( ( t0 = el.getAttribute( token.substring( 1, i - ( mT0[t1 = token.charAt( i - 1 )] ? 1 : 0 ) ) ) ) === null ) return;
 							v = token.substr( i + 1 );
@@ -806,112 +801,153 @@ fn( 'ev', (function(){
 							case'!':return t0 !== v;
 							default:return t0 === v;
 							}
-						case':':
+						};
+					})(),
+					':':(function( trim, domData ){
+						var mTag = {'first-of-type':1, 'last-of-type':1, 'only-of-type':1},
+						nChild = {'first-child':'firstElementChild', 'last-child':'lastElementChild'},
+						enabled = {INPUT:1, BUTTON:1, SELECT:1, OPTION:1, TEXTAREA:1},
+						checked = {INPUT:1, radio:1, checkbox:1, OPTION:2},
+						skip ={'target':1, 'active':1, 'visited':1, 'first-line':1, 'first-letter':1, 'hover':1, 'focus':1, 'after':1, 'before':1, 'selection':1,
+							'eq':1, 'gt':1, 'lt':1,
+							'valid':1, 'invalid':1, 'optional':1, 'in-range':1, 'out-of-range':1, 'read-only':1, 'read-write':1, 'required':1
+						};
+						return function filters(el, token){
+							var parent, childs, tag, dir, t0, t1, t2, k, v, i, j, m, dd, tname, ename, lname;
 							k = token.substr(1), i = k.indexOf('('), v = i > -1 ? isNaN( t0 = k.substr( i + 1 ) ) ? t0.replace( trim, '' ) : parseFloat(t0) : null;
 							if( v ) k = k.substring( 0, i );
 							if( skip[k] ) return;
-							tag = el.tagName;
 							switch( k ){
-							case'link':return tag == 'A' && el.getAttribute('href');
-							case'root':return tag == 'HTML';
+							case'link':return el.tagName == 'A' && el.getAttribute('href');
+							case'root':return el.tagName == 'HTML';
 							case'lang':return el.getAttribute('lang') == v;
 							case'empty':return el.nodeType == 1 && !el.nodeValue && !el.childNodes.length;
-							case'checked':return t0 = checked[tag], ( t0 == 1 && el.checked == true && checked[el.getAttribute('type')] ) || ( t0 == 2 && el.selected );
-							case'enabled':return enabled[tag] && el.getAttribute('disabled') === null;
-							case'disabled':return enabled[tag] && el.getAttribute('disabled') !== null;
-							case'first-child':case'first-of-type':dir = 1;case'last-child':case'last-of-type':
-								if( ( children = el.parentNode.childNodes ) && ( i = j = children.length ) ){
-									m = 0, t1 = mTag[k];
-									while( i-- ){
-										t0 = children[dir ? j - i - 1 : i];
-										if( t0.nodeType == 1 && ( t1 ? tag == t0.tagName : 1 ) ) return !m++ && t0 == el;
-									}
+							case'checked':return t0 = checked[el.tagName], ( t0 == 1 && el.checked && checked[el.getAttribute('type')] ) || ( t0 == 2 && el.selected );
+							case'enabled':return enabled[el.tagName] && ( ( t0 = el.getAttribute('disabled') ) == null || t0 == '' );
+							case'disabled':return enabled[el.tagName] && ( ( t0 = el.getAttribute('disabled') ) != null && t0 != '' );
+							case'contains':return ( el.innerText || el.textContent || '' ).indexOf(v) > -1;
+							case'not':
+								switch( v.charAt(0) ){
+								case'#':return v.substr(1) != el.id;
+								case'.':return !( !( t0 = el.className ) ? 0 : ( t1 = v.substr(1), t0.indexOf(' ') < 0 ? t1 == t0 : t0.split(' ').indexOf(t1) > -1 ) );
+								default:return v != el.tagName && v != '*';
 								}
-								return;
-							case'only-of-type':case'only-child':
-								if( ( children = el.parentNode.childNodes ) && ( i = children.length ) ){
-									m = 0, t1 = mTag[k];
-									while( i-- ){
-										t0 = children[i];	
-										if( t0.nodeType == 1 ){
-											if( t1 ? tag == t0.tagName : 1 ){
-												if( m++ ) return;
-												t2 = t0;
+								return 0;
+							case'first-child':case'first-of-type':dir = 1;case'last-child':case'last-of-type':
+								if( isElCld && ( t1 = nChild[k] ) ) return el.parentNode[t1] == el;
+								dd = domData( parent = el.parentNode ), tag = el.tagName;
+								(t1 = mTag[k]) ? dir ? ( tname = 'DQseqFCT', ename = 'DQFCTEl' ) : ( tname = 'DQseqLCT', ename = 'DQLCTEl' ):
+									dir ? ( tname = 'DQseqFC', ename = 'DQFCEl' ) : ( tname = 'DQseqLC', ename = 'DQLCEl' );
+								if( !dd[tname] || dd[tname] != ( t1 ? tag : '' ) + bsRseq ){
+									if( ( childs = isElCld ? parent.children : parent.childNodes ) && ( i = j = childs.length ) ){
+										m = 0;
+										while( i-- ){
+											t0 = childs[dir ? j - i - 1 : i];
+											if( ( isElCld ? 1 : t0.nodeType == 1 ) && ( t1 ? tag == t0.tagName : 1 ) && !m++ ){
+												dd[tname] = ( t1 ? tag : '' ) + bsRseq,
+												dd[ename] = t0;break;
 											}
 										}
 									}
-									return el == t2;
 								}
-								return;
+								return dd[ename] == el;
+							case'only-of-type':case'only-child':
+								if( isElCld && k == 'only-child' ) return el.parentNode.children.length == 1;
+								dd = domData( parent = el.parentNode ),
+								t1 = mTag[k], tag = el.tagName;
+								k == 'only-of-type' ? ( tname = 'DQseqOT', lname = 'DQTChElLen' ) : ( tname = 'DQseqOCH', lname = 'DQChElLen' );
+								if( !dd[tname] || dd[tname] != ( t1 ? tag : '' ) + bsRseq ){
+									if( ( childs = isElCld ? parent.children : parent.childNodes ) && ( i = childs.length ) ){
+										m = 0;
+										while( i-- ){
+											t0 = childs[i];
+											if( ( isElCld ? 1 : t0.nodeType == 1 ) && ( t1 ? tag == t0.tagName : 1 ) && !m++ );
+										}
+										dd[tname] = ( t1 ? tag : '' ) + bsRseq,
+										dd[lname] = m;
+									}
+								}
+								return dd[lname] == 1;
 							default:
-								if( !( parent = el.parentNode ) || parent.tagName == 'HTML' || !( children = parent.childNodes ) || !( j = i = children.length ) ) return;
+								if( !( parent = el.parentNode ) || parent.tagName == 'HTML' || !( childs = isElCld ? parent.children : parent.childNodes ) || !( j = i = childs.length ) ) return;
 								if( v == 'n' ) return 1;
-								t1 = 0;
+								t1 = 1, dd = domData(el);
 								switch( k ){
 								case'nth-child':
-									for( i = 0 ; i < j ; i++ ){
-										t0 = children[i];
-										if( t0.nodeType == 1 ){
-											t1++;
-											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+									if( !dd.DQseq || dd.DQseq != bsRseq ) for( i = 0; i < j; i++ ){
+										t0 = childs[i];
+										if( isElCld ? 1 : t0.nodeType == 1 ){
+											( t2 = domData(t0) ).DQseq = bsRseq,
+											t2.DQindex = t1++;
 										}
 									}
-									return;
+									return t0 = dd.DQindex, v == 'even' || v == '2n' ? t0 % 2 == 0 :
+									v == 'odd' || v == '2n+1' ? t0 % 2 == 1 :
+									t0 == v;
 								case'nth-last-child':
-									while( i-- ){
-										t0 = children[i];
-										if( t0.nodeType == 1 ){
-											t1++;
-											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+									if( !dd.DQseqL || dd.DQseqL != bsRseq ) while( i-- ){
+										t0 = childs[i];
+										if( isElCld ? 1 : t0.nodeType == 1 ){
+											( t2 = domData(t0) ).DQseqL = bsRseq,
+											t2.DQindexL = t1++;
 										}
 									}
-									return;
+									return t0 = dd.DQindexL, v == 'even' || v == '2n' ? t0 % 2 == 0 :
+									v == 'odd' || v == '2n+1' ? t0 % 2 == 1 :
+									t0 == v;
 								case'nth-of-type':
 									tag = el.tagName;
-									for( i = 0 ; i < j ; i++ ){
-										t0 = children[i];
-										if( t0.nodeType == 1 && t0.tagName == tag ){
-											t1++;
-											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+									if( !dd.DQseqT || dd.DQseqT != tag + bsRseq ) for( i = 0 ; i < j ; i++ ){
+										t0 = childs[i];
+										if( ( isElCld ? 1 : t0.nodeType == 1 ) && t0.tagName == tag ){
+											( t2 = domData(t0) ).DQseqT = tag + bsRseq,
+											t2.DQindexT = t1++;
 										}
 									}
-									return;
+									return t0 = dd.DQindexT, v == 'even' || v == '2n' ? t0 % 2 == 0 :
+									v == 'odd' || v == '2n+1' ? t0 % 2 == 1 :
+									t0 == v;
 								case'nth-last-of-type':
 									tag = el.tagName;
-									while( i-- ){
-										t0 = children[i];
-										if( t0.nodeType == 1 && t0.tagName == tag ){
-											t1++;
-											if( el == t0 ) return j = t1 % 2, v == 'even' || v == '2n' ? j == 0 : v == 'odd' || v == '2n+1' ? j == 1 : t1 == v;
+									if( !dd.DQseqTL || dd.DQseqTL != tag + bsRseq ) while( i-- ){
+										t0 = childs[i];
+										if( ( isElCld ? 1 : t0.nodeType == 1 ) && t0.tagName == tag ){
+											( t2 = domData(t0) ).DQseqTL = tag + bsRseq,
+											t2.DQindexTL = t1++;
 										}
 									}
-									return;
+									return t0 = dd.DQindexTL, v == 'even' || v == '2n' ? t0 % 2 == 0 :
+									v == 'odd' || v == '2n+1' ? t0 % 2 == 1 :
+									t0 == v;
 								}
 							}
-						default: return token == el.tagName || token == '*';
-						}
-					};
-				})(),
-				isQSA = doc['querySelectorAll'] ? 1 : 0, rTag = /^[a-z]+[0-9]*$/i, rAlpha = /[a-z]/i, rClsTagId = /^[.#]?[a-z0-9]+$/i,
+						};
+					})( trim, domData )
+				},
+				rTag = /^[a-z]+[0-9]*$/i, rAlpha = /[a-z]/i, rClsTagId = /^[.#]?[a-z0-9]+$/i,
 				DOC = document, tagName = {}, clsName = {},
 				className = (function( tagName, clsName ){
-					var reg = {}, r = {length:0};
-					return document['getElementsByClassName'] ? function(cls){
-						return clsName[cls] || ( clsName[cls] = DOC.getElementsByClassName(cls) );
-					} : function(cls){
-						var t0 = tagName['*'] || ( tagName['*'] = DOC.getElementsByTagName('*') ), t1 = r[cls] || ( r[cls] = new RegExp( '\\b' + cls + '\\b', 'g' ) ), i;
+					var reg = {}, r = [];
+					return DOC['getElementsByClassName'] ? function(cls){return clsName[cls] || ( clsName[cls] = DOC.getElementsByClassName(cls) );} : 
+					function(cls){
+						var t0 = tagName['*'] || ( tagName['*'] = DOC.getElementsByTagName('*') ), t1 = r[cls] || ( r[cls] = new RegExp( '\\b' + cls + '\\b', 'g' ) ), i = t0.length;
 						r.length = 0;
-						while( i-- ) if( t1.test(t0[i].className) ) r[r.length++] = t0[i];
+						while( i-- ) if( t1.test( t0[i].className ) ) r[r.length++] = t0[i];
 						return r;
 					};
 				})( tagName, clsName ),
-				mQSA = {' ':1,'+':1,'~':1,':':1,'[':1}, mT1 = {'>':1, '+':1, '~':1},
-				mParent = {' ':1, '>':1}, mQSAErr = '!', mBracket = {'[':1, '(':1, ']':2, ')':2},
+				bsRseq = 0, navi, aPsibl = ['previousSibling', 'previousElementSibling'], tEl = DOC.createElement('ul'), isElCld, isQSA,
+				chrome = ( navi = window['navigator'].userAgent.toLowerCase() ).indexOf('chrome') > -1 || navi.indexOf('crios') ? 1 : 0,
+				mQSA = {' ':1,'+':1,'~':1,':':1,'[':1},
+				mParent = {' ':1, '>':1}, mBracket = {'[':1, '(':1, ']':2, ')':2},
 				mEx = {' ':1, '*':1, ']':1, '>':1, '+':1, '~':1, '^':1, '$':1},
-				mT0 = {' ':1, '*':2, '>':2, '+':2, '~':2, '#':3, '.':3, ':':3, '[':3},
-				R = {length:0}, arrs = {_l:0};
-				return function( query, doc, r ){
-					var sels, sel, hasParent, hasQSAErr, hasQS, el, els, tags, key, hit, token, tokens, t0, t1, t2, t3, i, j, k, l, m, n;
+				mT0 = {' ':1, '*':2, '>':2, '+':2, '~':2, '#':3, '.':3, ':':3, '[':3}, mT1 = {'>':1, '+':1, '~':1},
+				R = [], arrs = {_l:0};
+				tEl.innerHTML = '<li>1</li>',
+				isElCld = tEl['firstElementChild'] && tEl['lastElementChild'] && tEl['children'] ? 1 : 0,
+				isQSA = isElCld && DOC['querySelectorAll'] ? 1 : 0;
+				return function selector( query, doc, r ){
+					var sels, sel, hasParent, hasQSAErr, hasQS, el, els, hit, token, tokens, t0, t1, t2, t3, i, j, k, l, m, n;
 					if( !r ) r = R;
 					r.length = 0, doc ? ( DOC = doc ) : ( doc = DOC );
 					if( rClsTagId.test(query) ) switch( query.charAt(0) ){
@@ -919,6 +955,7 @@ fn( 'ev', (function(){
 						case'.':return className(query.substr(1));
 						default:return tagName[query] || ( tagName[query] = doc.getElementsByTagName(query) );
 					}
+					if( chrome && isQSA && ( t0 = query.toLowerCase() ).indexOf(':contains') < 0 && t0.indexOf('!') < 0 ) return doc.querySelectorAll(query);
 					if( isQSA && ( i = query.indexOf(',') ) > -1 && query.indexOf('!') < 0 ) return doc.querySelectorAll(query);
 					if( i == -1 ) sels = arrs._l ? arrs[--arrs._l] : [], sels[0] = query, i = 1;
 					else sels = query.split(','), i = sels.length;
@@ -927,7 +964,7 @@ fn( 'ev', (function(){
 						while( j-- ){
 							k = sel.charAt(j);
 							if( hasParent || mParent[k] ) hasParent = 1;
-							if( hasQSAErr || m == 2 && k == '!' ) hasQSAErr = 1;
+							if( m == 2 && k == '!' ) hasQSAErr = 1;
 							if( ( t2 = mBracket[k] ) && ( m = t2 ) == 2 ) continue;
 							if( !( t2 = mEx[k] ) ) t1 = k + t1;
 							if( t2 && m == 2 ) t1 = k + t1;
@@ -947,16 +984,20 @@ fn( 'ev', (function(){
 						while( j-- ){
 							if( rTag.test(t0[j]) ) t0[j] = t0[j].toUpperCase();
 							else if( t0[j].charAt(0) == ':' ){
-								t0[j] = t0[j].toLowerCase();
-								if( ( t0[j] == ':nth-child(n' || t0[j] == ':nth-last-child(n' ) && t0.length != 1 ){
-									t0.splice( j, 1 );
-									continue;
+								if( !( t1 = t0[j] ).toLowerCase().indexOf( ':contains(' ) ){
+									hasQSAErr = 1; continue;
+								}else{
+									t0[j] = t1;
+									if( ( t1 == ':nth-child(n' || t1 == ':nth-last-child(n' ) && t0.length != 1 ){
+										hasQSAErr = 1, t0.splice( j, 1 ); continue;
+									}
 								}
 							}
-							if( isQSA && !hasQSAErr && !hasQS && !mQSA[t0[j].charAt(0)] ) hasQS = 1;
+							if( isQSA && !hasQS && !mQSA[t0[j].charAt(0)] ) hasQS = 1;
 						}
 						sels[i] = t0;
 					}
+					if( hasQSAErr ) hasQS = 0;
 					if( sels.length == 1 ){
 						t0 = sels[0][0];
 						if( ( k = t0.charAt(0) ) == '#' ) els = arrs._l ? arrs[--arrs._l] : [], els[0] = doc.getElementById(t0.substr(1)), sels[0].shift();
@@ -978,7 +1019,8 @@ fn( 'ev', (function(){
 					}
 					if( !els ) els = tagName['*'] || ( tagName['*'] = doc.getElementsByTagName('*') );
 					if( !sels[0].length ) return arrs[arrs._l++] = sels[0], sels.length = 0, arrs[arrs._l++] = sels, els;
-					for( i = 0, j = els.length ; i < j ; i++ ){
+					bsRseq++;
+					for( i = 0, j = els.length; i < j; i++ ){
 						l = sels.length;
 						while( l-- ){
 							el = els[i];
@@ -986,20 +1028,22 @@ fn( 'ev', (function(){
 								token = tokens[m], hit = 0;
 								if( ( k = token.charAt(0) ) == ' ' ){
 									m++;
-									while( el = el.parentNode ) if( hit = compare( el, tokens[m] ) ) break;
-								}else if( k == '>' ) hit = compare( el = el.parentNode, tokens[++m] );
+									while( el = el.parentNode )
+										if( hit = ( ( t0 = compare[tokens[m].charAt(0)] ) ? t0( el, tokens[m] ) : ( tokens[m] == el.tagName || tokens[m] == '*' ) ) ) break;
+								}else if( k == '>' )
+									hit = ( ( t0 = compare[tokens[++m].charAt(0)] ) ? t0( el = el.parentNode, tokens[m] ) :
+									( tokens[m] == ( el = el.parentNode ).tagName || tokens[m] == '*' ) );
 								else if( k == '+' ){
-									while( el = el.previousSibling ) if( el.nodeType == 1 ) break;
-									hit = el && compare( el, tokens[++m] );
+									while( el = el[ aPsibl[isElCld] ] ) if( ( isElCld ? 1 : el.nodeType == 1 ) ) break;
+									hit = el && ( ( t0 = compare[tokens[++m].charAt(0)] ) ? t0( el, tokens[m] ) : ( tokens[m] == el.tagName || tokens[m] == '*' ) );
 								}else if( k == '~' ){
 									m++;
-									while( (el = el.previousSibling) ){
-										if( el.nodeType == 1 && compare( el, tokens[m] ) ){
-											hit = 1;
-											break;
+									while( el = el[aPsibl[isElCld]] ){
+										if( ( isElCld ? 1 : el.nodeType == 1 ) && ( ( t0 = compare[tokens[m].charAt(0)] ) ? t0( el, tokens[m] ) : ( tokens[m] == el.tagName || tokens[m] == '*' ) ) ){
+											hit = 1; break;
 										}
 									}
-								}else hit = compare( el, token );
+								}else hit = ( ( t0 = compare[token.charAt(0)] ) ? t0( el, token ) : ( token == el.tagName || token == '*' ) );
 								if( !hit ) break;
 							}
 							if( i == j - 1 ) tokens.length = 0, arrs[arrs._l++] = tokens;
@@ -1059,9 +1103,9 @@ fn( 'ev', (function(){
 				sGet:'data.BSdomS ? data.BSdomS.g( d.style, k ) : d.style[style[k]]',
 				sSet:'arg.length ? ( data.BSdomS || ( data.BSdomS = bs.Style() ) ).S( d.style, arg, 0 ) : 0',
 				tGet:'type( d, k )'
-			}, {ev:bs.ev.dom, domData:domData, style:bs.Style.keys, attrs:attrs, first:first, ktype:[], arg:{length:0}, del:bs.Dom.del, exop:{'+':1,'-':1,'*':1,'/':1,'=':1} } );
+			}, {ev:bs.ev.dom, domData:domData, style:bs.Style.keys, attrs:attrs, first:first, ktype:[], arg:{length:0}, del:del, exop:{'+':1,'-':1,'*':1,'/':1,'=':1} } );
 		} ),
-		fn( 'css', (function cssLoader(trim){
+		fn( 'css', (function(trim){
 			var r = /^[0-9.-]+$/, parser = function(data){
 				var t0, t1, t2, t3, c, i, j, k, v, m, sel, val;
 				t2 = [], t0 = data.split('}');
