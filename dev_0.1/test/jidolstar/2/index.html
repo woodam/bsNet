@@ -30,6 +30,8 @@ bs(function(){
         bs.Dom('#output').S('html+', '\n-----------------------------------------------------------------------------------\n');
     }
     bs.cors('#DAS$DF');
+    bs.ck( 'ck1', 'v1' );
+    bs.ck( 'ck2', 'v2' );
     u = 'echo0.1.php';
     //bs.post( end, u,'param1', 'value', 'param2', 'value2' );
     //bs.post( end, u,'param1', 'value', 'param2', 'value2', '@Custom', 'a' );
@@ -38,7 +40,7 @@ bs(function(){
     //bs.put( end, u,'param1', 'value', 'param2', 'value2' );
     
     u = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/2/echo0.1.php';
-    bs.get( end, u,'param1', 'value1', '파라미터2', '값2'); //OK
+    bs.post( end, u,'param1', 'value1', '파라미터2', '값2'); //OK
 //    bs.get( end, u + '?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2'); //OK
 //    bs.get( end, u + '?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2', '@Custom1', 'CustomValue1'); //ERROR
 //    bs.post( end, u,'param1', 'value1', '파라미터2', '값2');  //OK

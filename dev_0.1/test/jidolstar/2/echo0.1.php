@@ -11,7 +11,7 @@ if (!function_exists('getallheaders')) {
     }
 }
 $data = array(
-    "headers" => getallheaders(),
+    "header" => getallheaders(),
     "method" => $_SERVER['REQUEST_METHOD']
 );
 switch( $_SERVER['REQUEST_METHOD'] ) {

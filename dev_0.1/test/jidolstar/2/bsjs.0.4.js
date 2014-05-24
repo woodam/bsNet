@@ -319,14 +319,14 @@ CORE:
 		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
 		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
 		if( isCors ){
-		    if( !corsAccessKey ) err(5003, 'CORSPROXY서비스를 사용하기 위해서는 접근키가 필요합니다.');
-		    x = cors(); if( !x ) err(5001, '이 브라우져는 CORS를 지원하지 않습니다.');
-		    arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data='+encodeURIComponent(arg) + '&key='+encodeURIComponent(corsAccessKey);
-		    if(!end) err(5002, 'CORS는 동기통신을 지원하지 않습니다.');
-		    if(isXdr){
+		    if( !corsAccessKey ) err( 5003, 'CORSPROXY서비스를 사용하기 위해서는 접근키가 필요합니다.' );
+		    x = cors(); if( !x ) err( 5001, '이 브라우져는 CORS를 지원하지 않습니다.' );
+		    arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
+		    if( !end ) err( 5002, 'CORS는 동기통신을 지원하지 않습니다.' );
+		    if( isXdr ){
 			m = true, x.onload = function(){
 			    if( timeId < 0 ) return;
-			    clearTimeout(timeId), timeId = -1, m = false, x.onload  = x.onerror = null, 
+			    clearTimeout(timeId), timeId = -1, m = false, x.onload = x.onerror = null, 
 			    end( x.responseText, 200 );
 			}, x.onerror = function(){
 			    if( timeId > -1 ){
@@ -366,7 +366,7 @@ CORE:
 			if( httpHeader[k] ) httpH[httpH.length] = k;
 		    }
 		    for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
-		    arg += '&headers=' + encodeURIComponent(l.substr(0,l.length-1));
+		    arg += '&header=' + encodeURIComponent(l.substr(0,l.length-1));
 		    x.send(arg);
 		}else{
 		    x = xhr();
@@ -397,7 +397,7 @@ CORE:
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
-	fn( 'cors', function( k ){ corsAccessKey = k; } )
+	fn( 'cors', function( k ){ corsAccessKey = k; } );
 })(trim);
 PLUGIN:
 (function( register, depends ){
