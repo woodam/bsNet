@@ -334,22 +334,19 @@ CORE:
 			}, timeout );
 		};
 		asyncXDR = function( x, end ){
-			var t, timeId;
-			t = true, x.onload = function(){
+			var timeId, clr;
+			clr = function(){
+				if( timeId > -1 ) clearTimeout(timeId);
+				timeId = -1, x.onload = x.onerror = null;
+			};
+			x.onload = function(){
 				if( timeId < 0 ) return;
-				clearTimeout(timeId), timeId = -1, t = false, x.onload = x.onerror = null, 
-				end( x.responseText, 200 );
+				clr(), end( x.responseText, 200 );
 			}, x.onerror = function(){
-				if( timeId > -1 ){
-					if( t ) x.abort();
-					timeId = -1, t = false, x.onload = x.onerror = null;
-				}
+				if( timeId > -1 ) x.abort(), clr();
 				end( null, 'xdr error' );
 			}, timeId = setTimeout( function(){
-				if( timeId > -1 ){
-					if( t ) x.abort();
-					timeId = -1, t = false, x.onload = x.onerror = null, end( null, 'timeout' );
-				}
+				if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
 			}, timeout );
 		};
 		return function( type, end, U, arg ){
