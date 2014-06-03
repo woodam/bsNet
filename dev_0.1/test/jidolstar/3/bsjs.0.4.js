@@ -87,7 +87,7 @@ detectDOM = function( W, detect ){
 	div = div.getElementsByTagName( 'div' )[0];
 	switch( detect.browser ){
 	case'ie':
-		if( detect.browserVer == -1 ) detect.browserVer = !c ? 8 : !( 'msTransition' in bStyle ) && !( 'transition' in bStyle ) ? 9 : c.getContext('webgl') || c.getContext("experimental-webgl") ? 11 : 10;
+		if( detect.browserVer == -1 ) detect.browserVer = !c['getContext'] ? 8 : !( 'msTransition' in bStyle ) && !( 'transition' in bStyle ) ? 9 : c.getContext('webgl') || c.getContext('experimental-webgl') ? 11 : 10;
 		cssPrefix = '-ms-', stylePrefix = 'ms'; transform3D = detect.browserVer > 9 ? 1 : 0;
 		if( detect.browserVer == 6 ) doc.execCommand( 'BackgroundImageCache', false, true ), bStyle.position = 'relative';
 		break;
@@ -376,7 +376,7 @@ CORE:
 					l += encodeURIComponent(k = paramH[i++]) + '=' + encodeURIComponent( paramH[i++] ) + '&';
 					if( httpHeader[k] ) httpH[httpH.length] = k;
 				}
-				for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j == 'function' ? j(type) : j) + '&';
+				for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j === 'function' ? j(type) : j) + '&';
 				arg += '&header=' + encodeURIComponent(l.substr(0,l.length-1));
 				x.send(arg);
 			}else{
@@ -388,11 +388,11 @@ CORE:
 					x.setRequestHeader( k = paramH[i++], paramH[i++] );
 					if( httpHeader[k] ) httpH[httpH.length] = k;
 				}
-				for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) j = httpHeader[i], x.setRequestHeader( i, typeof j == 'function' ? j(type) : j );
+				for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], x.setRequestHeader( i, typeof j === 'function' ? j(type) : j );
 				x.send(arg);
 				if( !end ) return i = x.responseText, x.onreadystatechange = null, i;
 			}
-		}
+		};
 	})(),
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
