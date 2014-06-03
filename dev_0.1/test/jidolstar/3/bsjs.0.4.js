@@ -294,7 +294,7 @@ CORE:
 	}),
 	httpHeader = {},
 	http = (function(){
-		var xhr, cors, paramH, paramP, param, httpH, isXdr, url, async, asyncCors;
+		var xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
 		paramH = [], paramP = [], httpH = [];
 		xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 			var t0, i, j;
@@ -317,7 +317,7 @@ CORE:
 			var t0 = url.split('#');
 			return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + '&' + param(arg) + ( t0[1] ? '#' + t0[1] : '' );
 		};
-		async = function( x, end ){
+		asyncXHR = function( x, end ){
 			var timeId;
 			x.onreadystatechange = function(){
 				var text, status;
@@ -333,7 +333,7 @@ CORE:
 				}
 			}, timeout );
 		};
-		asyncCors = function( x, end ){
+		asyncXDR = function( x, end ){
 			var t, timeId;
 			t = true, x.onload = function(){
 				if( timeId < 0 ) return;
@@ -362,10 +362,10 @@ CORE:
 				arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
 				if( !end ) err( 5002, 'CORS는 동기통신을 지원하지 않습니다.' );
 				if( isXdr ){
-					asyncCors( x, end );
+					asyncXDR( x, end );
 					x.open( 'POST', CORSPROXY );
 				}else{
-					async( x, end );
+					asyncXHR( x, end );
 					x.open( 'POST', CORSPROXY, true ),
 					x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
 					x.withCredentials = true;
@@ -381,7 +381,7 @@ CORE:
 				x.send(arg);
 			}else{
 				x = xhr();
-				if( end ) async( x, end );
+				if( end ) asyncXHR( x, end );
 				x.open( type, U, end ? true : false ),
 				httpH.length = i = 0, j = paramH.length;
 				while( i < j ){
