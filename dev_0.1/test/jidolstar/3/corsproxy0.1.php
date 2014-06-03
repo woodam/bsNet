@@ -22,6 +22,8 @@ if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) 
 error_reporting( E_ALL );
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
+ini_set( 'url_rewriter.tags', '' );
+ini_set( 'session.use_trans_sid', 0 );
 register_shutdown_function( '__shutdown_handler' );
 set_exception_handler( '__exception_handler' );
 set_error_handler( '__error_handler' );
