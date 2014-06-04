@@ -353,10 +353,10 @@ HTTP:
 		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
 		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
 		if( isCors ){
-			if( !corsAccessKey ) err( 5003, 'CORSPROXY서비스를 사용하기 위해서는 접근키가 필요합니다.' );
-			x = cors(); if( !x ) err( 5001, '이 브라우져는 CORS를 지원하지 않습니다.' );
+			if( !corsAccessKey ) err( 5003 );
+			x = cors(); if( !x ) err( 5001 );
 			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
-			if( !end ) err( 5002, 'CORS는 동기통신을 지원하지 않습니다.' );
+			if( !end ) err( 5002 );
 			if( isXdr ){
 				asyncXDR( x, end );
 				x.open( 'POST', CORSPROXY );
