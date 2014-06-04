@@ -294,106 +294,101 @@ CORE:
 })(trim);
 HTTP:
 (function(){
-	var httpHeader, http, corsAccessKey;
-	httpHeader = {},
-	http = (function(){
-		var xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
-		paramH = [], paramP = [], httpH = [];
-		xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
-			var t0, i, j;
-			t0 = 'MSXML2.XMLHTTP', t0 = ['Microsoft.XMLHTTP',t0,t0+'.3.0',t0+'.4.0',t0+'.5.0'], i = t0.length;
-			while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
-			return function(){return new ActiveXObject(j);};
-		})();
-		cors = W['XDomainRequest'] ? function(){return isXdr = true, new XDomainRequest;} : W['XMLHttpRequest'] ? function(){ return isXdr = false, new XMLHttpRequest;} : none();
-		param = function(arg){
-			var i, j, k;
-			if( !arg || ( j = arg.length ) < 4 ) return '';
-			paramH.length = paramP.length = 0, i = 2;
-			while( i < j )
-				if ( arg[i].charAt(0) === '@' ) paramH[paramH.length] = arg[i++].substr(1), paramH[paramH.length] = arg[i++];
-				else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++] ) + '=' + encodeURIComponent( arg[i++] );
-				else k = encodeURIComponent( arg[i++] );
-			return k || paramP.join('&');
-		};
-		url = function( url, arg ){
-			var t0 = url.split('#'), p = param(arg);
-			return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + ( p ? '&' + p : '' ) + ( t0[1] ? '#' + t0[1] : '' );
-		};
-		asyncXHR = function( x, end ){
-			var timeId;
-			x.onreadystatechange = function(){
-				var text, status;
-				if( x.readyState !== 4 || timeId < 0 ) return;
-				clearTimeout(timeId), timeId = -1,
-				text = x.status === 200 || x.status === 0 ? x.responseText : null,
-				status = text ? x.getAllResponseHeaders() : x.status,
-				x.onreadystatechange = null, end( text, status );
-			}, timeId = setTimeout( function(){
-				if( timeId > -1 ){
-					if( x.readyState !== 4 ) x.abort();
-					timeId = -1, x.onreadystatechange = null, end( null, 'timeout' );
-				}
-			}, timeout );
-		};
-		asyncXDR = function( x, end ){
-			var timeId, clr;
-			clr = function(){
-				if( timeId > -1 ) clearTimeout(timeId);
-				timeId = -1, x.onload = x.onerror = null;
-			};
-			x.onload = function(){
-				if( timeId < 0 ) return;
-				clr(), end( x.responseText, 200 );
-			}, x.onerror = function(){
-				if( timeId > -1 ) x.abort(), clr();
-				end( null, 'xdr error' );
-			}, timeId = setTimeout( function(){
-				if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
-			}, timeout );
-		};
-		return function( type, end, U, arg ){
-			var x, isCors, i, j, k, l;
-			isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
-			if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
-			if( isCors ){
-				if( !corsAccessKey ) err( 5003, 'CORSPROXY서비스를 사용하기 위해서는 접근키가 필요합니다.' );
-				x = cors(); if( !x ) err( 5001, '이 브라우져는 CORS를 지원하지 않습니다.' );
-				arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
-				if( !end ) err( 5002, 'CORS는 동기통신을 지원하지 않습니다.' );
-				if( isXdr ){
-					asyncXDR( x, end );
-					x.open( 'POST', CORSPROXY );
-				}else{
-					asyncXHR( x, end );
-					x.open( 'POST', CORSPROXY, true ),
-					x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
-					x.withCredentials = true;
-				}
-				httpH.length = i = 0, j = paramH.length;
-				l = '';
-				while( i < j ){
-					l += encodeURIComponent(k = paramH[i++]) + '=' + encodeURIComponent( paramH[i++] ) + '&';
-					if( httpHeader[k] ) httpH[httpH.length] = k;
-				}
-				for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j === 'function' ? j(type) : j) + '&';
-				arg += '&header=' + encodeURIComponent(l.substr(0,l.length-1));
-				x.send(arg);
-			}else{
-				x = xhr();
-				if( end ) asyncXHR( x, end );
-				x.open( type, U, end ? true : false ),
-				httpH.length = i = 0, j = paramH.length;
-				while( i < j ){
-					x.setRequestHeader( k = paramH[i++], paramH[i++] );
-					if( httpHeader[k] ) httpH[httpH.length] = k;
-				}
-				for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], x.setRequestHeader( i, typeof j === 'function' ? j(type) : j );
-				x.send(arg);
-				if( !end ) return i = x.responseText, x.onreadystatechange = null, i;
+	var httpHeader, http, corsAccessKey, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
+	httpHeader = {}, paramH = [], paramP = [], httpH = [];
+	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
+		var t0, i, j;
+		t0 = 'MSXML2.XMLHTTP', t0 = ['Microsoft.XMLHTTP',t0,t0+'.3.0',t0+'.4.0',t0+'.5.0'], i = t0.length;
+		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
+		return function(){return new ActiveXObject(j);};
+	})();
+	cors = ( isXdr = W['XDomainRequest'] ? 1 : 0 ) ? function(){return new XDomainRequest;} : W['XMLHttpRequest'] ? function(){ return new XMLHttpRequest;} : none();
+	param = function(arg){
+		var i, j, k;
+		if( !arg || ( j = arg.length ) < 4 ) return '';
+		paramH.length = paramP.length = 0, i = 2;
+		while( i < j )
+			if ( arg[i].charAt(0) === '@' ) paramH[paramH.length] = arg[i++].substr(1), paramH[paramH.length] = arg[i++];
+			else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++] ) + '=' + encodeURIComponent( arg[i++] );
+			else k = encodeURIComponent( arg[i++] );
+		return k || paramP.join('&');
+	};
+	url = function( url, arg ){
+		var t0 = url.split('#'), p = param(arg);
+		return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + ( p ? '&' + p : '' ) + ( t0[1] ? '#' + t0[1] : '' );
+	};
+	asyncXHR = function( x, end ){
+		var timeId;
+		x.onreadystatechange = function(){
+			var text, status;
+			if( x.readyState !== 4 || timeId < 0 ) return;
+			clearTimeout(timeId), timeId = -1,
+			text = x.status === 200 || x.status === 0 ? x.responseText : null,
+			status = text ? x.getAllResponseHeaders() : x.status,
+			x.onreadystatechange = null, end( text, status );
+		}, timeId = setTimeout( function(){
+			if( timeId > -1 ){
+				if( x.readyState !== 4 ) x.abort();
+				timeId = -1, x.onreadystatechange = null, end( null, 'timeout' );
 			}
-		};
-	})(),
+		}, timeout );
+	};
+	asyncXDR = function( x, end ){
+		var timeId, clr;
+		clr = function(){
+			if( timeId > -1 ) clearTimeout(timeId);
+			timeId = -1, x.onload = x.onerror = null;
+		}, x.onload = function(){
+			if( timeId < 0 ) return;
+			clr(), end( x.responseText, 200 );
+		}, x.onerror = function(){
+			if( timeId > -1 ) x.abort(), clr();
+			end( null, 'xdr error' );
+		}, timeId = setTimeout( function(){
+			if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
+		}, timeout );
+	};	
+	http = function( type, end, U, arg ){
+		var x, isCors, i, j, k, l;
+		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
+		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
+		if( isCors ){
+			if( !corsAccessKey ) err( 5003, 'CORSPROXY서비스를 사용하기 위해서는 접근키가 필요합니다.' );
+			x = cors(); if( !x ) err( 5001, '이 브라우져는 CORS를 지원하지 않습니다.' );
+			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
+			if( !end ) err( 5002, 'CORS는 동기통신을 지원하지 않습니다.' );
+			if( isXdr ){
+				asyncXDR( x, end );
+				x.open( 'POST', CORSPROXY );
+			}else{
+				asyncXHR( x, end );
+				x.open( 'POST', CORSPROXY, true ),
+				x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+				x.withCredentials = true;
+			}
+			httpH.length = i = 0, j = paramH.length;
+			l = '';
+			while( i < j ){
+				l += encodeURIComponent(k = paramH[i++]) + '=' + encodeURIComponent( paramH[i++] ) + '&';
+				if( httpHeader[k] ) httpH[httpH.length] = k;
+			}
+			for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j === 'function' ? j(type) : j) + '&';
+			arg += '&header=' + encodeURIComponent(l.substr(0,l.length-1));
+			x.send(arg);
+		}else{
+			x = xhr();
+			if( end ) asyncXHR( x, end );
+			x.open( type, U, end ? true : false ),
+			httpH.length = i = 0, j = paramH.length;
+			while( i < j ){
+				x.setRequestHeader( k = paramH[i++], paramH[i++] );
+				if( httpHeader[k] ) httpH[httpH.length] = k;
+			}
+			for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], x.setRequestHeader( i, typeof j === 'function' ? j(type) : j );
+			x.send(arg);
+			if( !end ) return i = x.responseText, x.onreadystatechange = null, i;
+		}
+	};
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
