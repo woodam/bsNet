@@ -317,8 +317,8 @@ HTTP:
 			return k || paramP.join('&');
 		};
 		url = function( url, arg ){
-			var t0 = url.split('#');
-			return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + '&' + param(arg) + ( t0[1] ? '#' + t0[1] : '' );
+			var t0 = url.split('#'), p = param(arg);
+			return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + ( p ? '&' + p : '' ) + ( t0[1] ? '#' + t0[1] : '' );
 		};
 		asyncXHR = function( x, end ){
 			var timeId;
