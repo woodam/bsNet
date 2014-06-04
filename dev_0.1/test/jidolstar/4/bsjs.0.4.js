@@ -354,7 +354,7 @@ HTTP:
 		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
 		if( isCors ){
 			if( !corsAccessKey ) err( 5003 );
-			x = cors(); if( !x ) err( 5001 );
+			if( !( x = cors() ) ) err( 5001 );
 			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
 			if( !end ) err( 5002 );
 			if( isXdr ){
