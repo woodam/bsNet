@@ -5,7 +5,7 @@
  */
 ( function( W, N ){
 'use strict';
-var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/3/corsproxy0.1.php',
+var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php',
 	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 0,
 	bs = W[N = N || 'bs'] = function(f){que ? ( que[que.length] = f ) : f();},
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );},
@@ -168,8 +168,7 @@ if( !W['console'] ) W['console'] = {log:none};
 CORE:
 (function(trim){
 	var rc = 0, rand, template,
-	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {},
-	httpHeader, http, corsAccessKey;
+	js, head = doc.getElementsByTagName('head')[0], e = W['addEventListener'], id = 0, c = bs.__callback = {};
 	BASE:
 	fn( 'obj', function( key, v ){var t0 = key.replace( trim, '' ).toUpperCase(); t0 != key ? err( 1002, key ) : bs[t0] ? err( 2002, t0 ) : bs[t0] = v;} ),
 	fn( 'cls', function( key, v ){
@@ -291,7 +290,11 @@ CORE:
 		var arg = arguments, load, i = 1, j = arg.length;
 		if( end ) ( load = function(){i < j ? js( arg[i++], load, end ) : end();} )();
 		else while( i < j ) js( bs.get( null, arg[i++] ) );
-	}),
+	})
+})(trim);
+HTTP:
+(function(){
+	var httpHeader, http, corsAccessKey;
 	httpHeader = {},
 	http = (function(){
 		var xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
@@ -394,8 +397,8 @@ CORE:
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
-	fn( 'cors', function( k ){ corsAccessKey = k; } );
-})(trim);
+	fn( 'cors', function( k ){ corsAccessKey = k; } );	
+})();
 PLUGIN:
 (function( register, depends ){
 	fn( 'repository', function(){return arguments[0] ? ( REPOSITORY = arguments[0] ) : REPOSITORY;} ),
