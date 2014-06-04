@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+<meta charset="UTF-8">
+<title>bsJScorsProxy Example</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+<style>
+html, body{ height: 100%; }
+#wrap{ min-height: 100%; height: auto;  margin: 0 auto -60px; padding: 0 0 60px; }
+#footer { height: 60px; background-color: #f5f5f5; }
+.container { width: auto; max-width: 680px; padding: 0 15px; }
+.container .credit { margin: 20px 0; }
+</style>
+</head>
+<body>
+<div id="wrap">
+    <div class="container">
+	<div class="page-header">
+	    <h3>bsJScorsProxy Example - DAUM Book Search</h3>
+	</div>
+	<div class='row'>
+	    <div class='col-xs-8'><input id="txtKeyword" type="text" class="form-control" placeholder="검색어를 입력하세요"/></div>
+	    <div class='col-xs-4'><button id="btnSearch" class="btn btn-primary">Search</button></div>            
+	</div>        
+    </div>
+    <br>
+    <div class="bs-example">
+	<div class="row">
+	    <div id="searchResult"></div>      
+	</div>
+    </div>
+</div>
+<script src="bsjs.0.4.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+<script>
+bs(function(){
+    bs.cors('#QADD!@SD');
+    function ltgt(text) {        
+        return text.replace(/&lt;b&gt;/g, '<b>').replace(/&lt;\/b&gt;/g, '</b>');
+    }
+    function search() {
+        bs.Dom('#searchResult').S('html','');
+        function end(data) {
+	    var i, j, book, html = '';
+            var jsonObj = JSON.parse(data), bookList = jsonObj.channel.item;
+            for ( i = 0, j = bookList.length; i < j ; i++ ) {
+                book = bookList[i];
+		html += '<div class="col-sm-4 col-md-3">';
+		html += '<div class="thumbnail">';
+		html += '<img src="'+book.cover_l_url+'" alt="Thumbnail">';
+		html += '<div class="caption">';
+		html += '<h3>' + ltgt(book.title) + '</h3>';
+		html += '<p>' + book.description + '</p>';
+		html += '<a href="' + book.link + '" class="btn btn-primary" role="button" target="_blank">상세보기</a></div></div></div>';
+            }
+	    bs.Dom('#searchResult').S('html',html);
+        }
+        bs.post( end, 'http://apis.daum.net/search/book', 'apikey', '3de17b9beef13384008095a38529194ac3604ad3', 'output', 'json', 'q', bs.Dom('#txtKeyword')['0'].value );
+    };
+    bs.Dom('‪#‎txtKeyword‬').S('keydown', function(e){
+	if( !e.key('enter') ) return;
+	e.preventDefault(), search();
+    });    
+    bs.Dom('#btnSearch').S( 'click', search );
+});
+</script>
+</body>
+</html>
