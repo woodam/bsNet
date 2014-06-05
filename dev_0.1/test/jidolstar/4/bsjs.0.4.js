@@ -294,7 +294,7 @@ CORE:
 })(trim);
 HTTP:
 (function(){
-	var httpHeader, http, corsAccessKey, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
+	var corsAccessKey = 'CORSPROXY_DEMO_ACCESS_KEY', httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -349,11 +349,13 @@ HTTP:
 		}, timeout );
 	};	
 	http = function( type, end, U, arg ){
-		var x, isCors, i, j, k;
+		var x, isCors, key, i, j, k;
 		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
 		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
 		if( isCors ){
-			if( !corsAccessKey ) err( 5003 );
+			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
+			else if( corsAccessKey ) key = corsAccessKey;
+			else err( 5003 );
 			if( !( x = cors() ) ) err( 5001 );
 			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = paramH.length + 2;
 			while( i < j ){
@@ -362,7 +364,7 @@ HTTP:
 			}
 			k = i; for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], corsHeader[k++] = i, corsHeader[k++] = typeof j === 'function' ? j(type) : j;
 			i = 2, corsBody[i++] = 'url', corsBody[i++] = U, corsBody[i++] = 'method', corsBody[i++] = type, 
-			corsBody[i++] = 'key', corsBody[i++] = corsAccessKey, corsBody[i++] = 'cookie', corsBody[i++] = document.cookie,
+			corsBody[i++] = 'key', corsBody[i++] = key, corsBody[i++] = 'cookie', corsBody[i++] = document.cookie,
 			corsBody[i++] = 'data', corsBody[i++] = arg, corsBody[i++] = 'header', corsBody[i++] = param(corsHeader);
 			arg = param(corsBody);
 			if( !end ) err( 5002 );

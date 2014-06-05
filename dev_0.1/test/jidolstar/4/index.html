@@ -29,7 +29,7 @@ bs(function(){
         }
         bs.Dom('#output').S('html+', '\n-----------------------------------------------------------------------------------\n');
     }
-    bs.cors('#DAS$DF');
+    //bs.cors('#DAS$DF');
     bs.ck( 'ck1', 'v1' );
     bs.ck( 'ck2', 'v2' );
     //u = 'echo0.1.php';
@@ -39,7 +39,7 @@ bs(function(){
     //bs.delete( end, u,'param1', 'value', 'param2', 'value2' );
     //bs.put( end, u,'param1', 'value', 'param2', 'value2' );
     
-    bs.post( end, u,'param1', 'value1', '파라미터2', '값2'); //OK
+    bs.post( end, u,'param1', 'value1', '파라미터2', '값2', '@corsAccessKey', 'asdcDa'); //OK
 //    bs.get( end, u + '?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2'); //OK
 //    bs.get( end, u + '?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2', '@Custom1', 'CustomValue1'); //ERROR
 //    bs.post( end, u,'param1', 'value1', '파라미터2', '값2');  //OK
