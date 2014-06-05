@@ -294,8 +294,8 @@ CORE:
 })(trim);
 HTTP:
 (function(){
-	var httpHeader, http, corsAccessKey, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
-	httpHeader = {}, paramH = [], paramP = [], httpH = [];
+	var httpHeader, http, corsAccessKey, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
+	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
 		t0 = 'MSXML2.XMLHTTP', t0 = ['Microsoft.XMLHTTP',t0,t0+'.3.0',t0+'.4.0',t0+'.5.0'], i = t0.length;
@@ -349,13 +349,22 @@ HTTP:
 		}, timeout );
 	};	
 	http = function( type, end, U, arg ){
-		var x, isCors, i, j, k, l;
+		var x, isCors, i, j, k;
 		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
 		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
 		if( isCors ){
 			if( !corsAccessKey ) err( 5003 );
 			if( !( x = cors() ) ) err( 5001 );
-			arg = 'url=' + encodeURIComponent(U) + '&method=' + type + '&data=' + encodeURIComponent(arg) + '&key=' + encodeURIComponent(corsAccessKey) + '&cookie=' + encodeURIComponent(document.cookie);
+			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = paramH.length + 2;
+			while( i < j ){
+				corsHeader[i++] = k = paramH[i-3], corsHeader[i++] = paramH[i-3];
+				if( httpHeader[k] ) httpH[httpH.length] = k;
+			}
+			k = i; for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], corsHeader[k++] = i, corsHeader[k++] = typeof j === 'function' ? j(type) : j;
+			i = 2, corsBody[i++] = 'url', corsBody[i++] = U, corsBody[i++] = 'method', corsBody[i++] = type, 
+			corsBody[i++] = 'key', corsBody[i++] = corsAccessKey, corsBody[i++] = 'cookie', corsBody[i++] = document.cookie,
+			corsBody[i++] = 'data', corsBody[i++] = arg, corsBody[i++] = 'header', corsBody[i++] = param(corsHeader);
+			arg = param(corsBody);
 			if( !end ) err( 5002 );
 			if( isXdr ){
 				asyncXDR( x, end );
@@ -366,14 +375,6 @@ HTTP:
 				x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
 				x.withCredentials = true;
 			}
-			httpH.length = i = 0, j = paramH.length;
-			l = '';
-			while( i < j ){
-				l += encodeURIComponent(k = paramH[i++]) + '=' + encodeURIComponent( paramH[i++] ) + '&';
-				if( httpHeader[k] ) httpH[httpH.length] = k;
-			}
-			for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], l += encodeURIComponent(i) + '=' + encodeURIComponent(typeof j === 'function' ? j(type) : j) + '&';
-			arg += '&header=' + encodeURIComponent(l.substr(0,l.length-1));
 			x.send(arg);
 		}else{
 			x = xhr();

@@ -16,7 +16,7 @@
 <script src="bsjs.0.4.js"></script>    
 <script>
 bs(function(){
-    var u = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/2/echo0.1.php';
+    var u = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/echo0.1.php';
     function end( data, option ) {
         if( data !== null ){
             bs.Dom('#output').S('html+', '[option]\n' + option);
@@ -32,7 +32,7 @@ bs(function(){
     bs.cors('#DAS$DF');
     bs.ck( 'ck1', 'v1' );
     bs.ck( 'ck2', 'v2' );
-    u = 'echo0.1.php';
+    //u = 'echo0.1.php';
     //bs.post( end, u,'param1', 'value', 'param2', 'value2' );
     //bs.post( end, u,'param1', 'value', 'param2', 'value2', '@Custom', 'a' );
     //bs.get( end, u + '?a=b','param1', 'value', 'param2', 'value2' );
