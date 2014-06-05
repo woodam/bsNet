@@ -294,7 +294,7 @@ CORE:
 })(trim);
 HTTP:
 (function(trim){
-	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
+	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, asyncXHR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -304,11 +304,28 @@ HTTP:
 	})();
 	cors = (function(){
 		if( W['XDomainRequest'] ){
-			corsRun = function( x, arg, end ){
-				asyncXDR( x, end );
-				x.open( 'POST', CORSPROXY );
-				x.send(arg);
-			};
+			corsRun = (function(){ 
+				var async = function( x, end ){
+					var timeId, clr;
+					clr = function(){
+						if( timeId > -1 ) clearTimeout(timeId);
+						timeId = -1, x.onload = x.onerror = null;
+					}, x.onload = function(){
+						if( timeId < 0 ) return;
+						clr(), end( x.responseText, 200 );
+					}, x.onerror = function(){
+						if( timeId > -1 ) x.abort(), clr();
+						end( null, 'xdr error' );
+					}, timeId = setTimeout( function(){
+						if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
+					}, timeout );
+				};
+				return function( x, arg, end ){
+					async( x, end );
+					x.open( 'POST', CORSPROXY );
+					x.send(arg);
+				};
+			})(); 
 			return function(){ return new XDomainRequest; };
 		}else if( W['XMLHttpRequest'] ){
 			corsRun = function( x, arg, end ){
@@ -354,21 +371,6 @@ HTTP:
 			}
 		}, timeout );
 	};
-	asyncXDR = function( x, end ){
-		var timeId, clr;
-		clr = function(){
-			if( timeId > -1 ) clearTimeout(timeId);
-			timeId = -1, x.onload = x.onerror = null;
-		}, x.onload = function(){
-			if( timeId < 0 ) return;
-			clr(), end( x.responseText, 200 );
-		}, x.onerror = function(){
-			if( timeId > -1 ) x.abort(), clr();
-			end( null, 'xdr error' );
-		}, timeId = setTimeout( function(){
-			if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
-		}, timeout );
-	};	
 	http = function( type, end, U, arg ){
 		var x, key, i, j, k;
 		if( type === 'GET' ){
