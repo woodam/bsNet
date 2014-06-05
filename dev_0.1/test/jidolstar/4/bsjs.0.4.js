@@ -350,13 +350,13 @@ HTTP:
 		}, timeout );
 	};	
 	http = function( type, end, U, arg ){
-		var x, isCors, key, i, j, k;
-		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
+		var x, key, i, j, k;
 		if( type === 'GET' ){
 			U = url( U, arg ), arg = '';
 			if( U.length > 512 ) err( 5004 );
 		} else U = url( U ), arg = param( arg );
-		if( isCors ){
+		if( U.indexOf( '://' ) > -1 ? U.slice(0,7) === 'http://' || U.slice(0,8) === 'https://' ? U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) === location.hostname.domain ? 0 : 1 : 1 : 0 ){
+			if( !end ) err( 5002 );
 			if( !( x = cors() ) ) err( 5001 );
 			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
 			else if( corsDefaultKey ) key = corsDefaultKey;
@@ -371,7 +371,6 @@ HTTP:
 			corsBody[i++] = 'key', corsBody[i++] = key, corsBody[i++] = 'cookie', corsBody[i++] = document.cookie,
 			corsBody[i++] = 'data', corsBody[i++] = arg, corsBody[i++] = 'header', corsBody[i++] = param(corsHeader);
 			arg = param(corsBody);
-			if( !end ) err( 5002 );
 			if( isXdr ){
 				asyncXDR( x, end );
 				x.open( 'POST', corsDefaultUrl );
