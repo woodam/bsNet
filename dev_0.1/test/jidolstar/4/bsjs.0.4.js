@@ -319,7 +319,7 @@ HTTP:
 				this.send(arg);
 			};
 			return function(){ return new XMLHttpRequest; };
-		}else return none();
+		}else return 0;
 	})();
 	param = function(arg){
 		var i, j, k, v, m;
@@ -377,7 +377,7 @@ HTTP:
 		} else U = url( U ), arg = param( arg );
 		if( U.indexOf( '://' ) > -1 ? U.slice(0,7) === 'http://' || U.slice(0,8) === 'https://' ? U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) === location.hostname.domain ? 0 : 1 : 1 : 0 ){
 			if( !end ) err( 5002 );
-			if( !( x = cors() ) ) err( 5001 );
+			x = cors() || err( 5001 );
 			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
 			else if( CORSPROXYKEY ) key = CORSPROXYKEY;
 			else err( 5003 );
