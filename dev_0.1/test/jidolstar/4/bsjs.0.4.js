@@ -351,7 +351,10 @@ HTTP:
 	http = function( type, end, U, arg ){
 		var x, isCors, key, i, j, k;
 		isCors = U.slice(0,4) === 'http' && U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) !== location.hostname.domain ? true : false;
-		if( type === 'GET' ) U = url( U, arg ), arg = ''; else U = url( U ), arg = param( arg );
+		if( type === 'GET' ){
+			U = url( U, arg ), arg = '';
+			if( U.length > 512 ) err( 5004 );
+		} else U = url( U ), arg = param( arg );
 		if( isCors ){
 			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
 			else if( corsAccessKey ) key = corsAccessKey;
