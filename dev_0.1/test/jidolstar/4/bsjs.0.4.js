@@ -322,14 +322,17 @@ HTTP:
 		}else return none();
 	})();
 	param = function(arg){
-		var i, j, k;
+		var i, j, k, v, m;
 		if( !arg || ( j = arg.length ) < 3 ) return '';
 		paramH.length = paramP.length = 0, i = 2;
-		while( i < j )
-			if ( arg[i].charAt(0) === '@' ) paramH[paramH.length] = arg[i++].substr(1).replace( trim, '' ), paramH[paramH.length] = arg[i++].replace( trim, '' );
-			else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++].replace( trim, '' ) ) + '=' + encodeURIComponent( arg[i++].replace( trim, '' ) );
-			else k = encodeURIComponent( arg[i++].replace( trim, '' ) );
-		return k || paramP.join('&');
+		while( i < j ){
+			if( typeof( k = arg[i++] ) === 'string' && ( k = k.replace( trim, '' ) ).length !== 0 ){}else{ err( 5005 ); }
+			if( i < j ){
+				v = typeof( v = arg[i++] ) === 'string' ? v.replace( trim, '' ) : typeof v === 'number' || typeof v === 'boolean' ? v.toString() : typeof v === 'undefined' ? 'undefined' : typeof v === 'function' ? v.toString() : v === null ? 'null' : JSON.stringify(v);
+				( k.charAt(0) === '@' ) ? ( k = k.substr(1).replace( trim, '' ) ).length === 0 ? err( 5006 ) : ( paramH[paramH.length] = k, paramH[paramH.length] = v ) : paramP[paramP.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
+			}else m = encodeURIComponent( k );
+		}
+		return m || paramP.join('&');
 	};
 	url = function( url, arg ){
 		var t0 = url.replace( trim, '' ).split('#'), p = param(arg);

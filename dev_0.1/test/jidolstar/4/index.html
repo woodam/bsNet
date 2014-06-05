@@ -38,7 +38,8 @@ bs(function(){
     //bs.delete( end, u,'param1', 'value', 'param2', 'value2' );
     //bs.put( end, u,'param1', 'value', 'param2', 'value2' );
     
-    bs.post( end, u,'param1', 'value1', '파라미터2', '값2', '@corsAccessKey', 'asdcDa'); //OK
+	var a;
+    bs.post( end, u, '@ Custom1 ', 'CustomValue1', '@corsAccessKey', 'asdcDa', 'k', 'v  ', 'number', 1, ' undefined', a, 'null', null, 'boolean', false, 'function', function(){return 1;}, 'object', {a:3,b:4,c:[1,2,3]} ); //OK
 //    bs.get( end, u + '?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2'); //OK
 //    bs.get( end, u + '?qs1=qsv1&qs2=qsv2','param1', 'value1', '파라미터2', '값2', '@Custom1', 'CustomValue1'); //ERROR
 //    bs.post( end, u,'param1', 'value1', '파라미터2', '값2');  //OK
