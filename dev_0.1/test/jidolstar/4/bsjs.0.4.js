@@ -294,7 +294,7 @@ CORE:
 })(trim);
 HTTP:
 (function(trim){
-	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, asyncXHR;
+	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, async;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -328,7 +328,7 @@ HTTP:
 		function(){ return new XDomainRequest; }
 	) : W['XMLHttpRequest'] ? (
 		corsRun = function( x, arg, end ){
-			asyncXHR( x, end );
+			async( x, end );
 			x.open( 'POST', CORSPROXY, true ),
 			x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
 			x.withCredentials = true;
@@ -353,7 +353,7 @@ HTTP:
 		var t0 = url.replace( trim, '' ).split('#'), p = param(arg);
 		return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + ( p ? '&' + p : '' ) + ( t0[1] ? '#' + t0[1] : '' );
 	};
-	asyncXHR = function( x, end ){
+	async = function( x, end ){
 		var timeId;
 		x.onreadystatechange = function(){
 			var text, status;
@@ -391,7 +391,7 @@ HTTP:
 			corsRun( x, param(corsBody), end );
 		}else{
 			x = xhr();
-			if( end ) asyncXHR( x, end );
+			if( end ) async( x, end );
 			x.open( type, U, end ? true : false ),
 			httpH.length = i = 0, j = paramH.length;
 			while( i < j ){
