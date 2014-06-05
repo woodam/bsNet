@@ -294,8 +294,8 @@ CORE:
 })(trim);
 HTTP:
 (function(trim){
-	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, async;
-	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
+	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, head, paramBody, param, httpH, url, async;
+	httpHeader = {}, head = [], paramBody = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (function(){
 		var t0, i, j;
 		t0 = 'MSXML2.XMLHTTP', t0 = ['Microsoft.XMLHTTP',t0,t0+'.3.0',t0+'.4.0',t0+'.5.0'], i = t0.length;
@@ -337,15 +337,15 @@ HTTP:
 	param = function(arg){
 		var i, j, k, v, m;
 		if( !arg || ( j = arg.length ) < 3 ) return '';
-		paramH.length = paramP.length = 0, i = 2;
+		head.length = paramBody.length = 0, i = 2;
 		while( i < j ){
 			if( typeof( k = arg[i++] ) === 'string' && ( k = k.replace( trim, '' ) ).length !== 0 ){}else{err( 5005 );}
 			if( i < j ){
 				v = typeof( v = arg[i++] ) === 'string' ? v.replace( trim, '' ) : typeof v === 'number' || typeof v === 'boolean' ? v.toString() : typeof v === 'undefined' ? 'undefined' : typeof v === 'function' ? v.toString() : v === null ? 'null' : JSON.stringify(v);
-				k.charAt(0) === '@' ? ( k = k.substr(1).replace( trim, '' ) ).length === 0 ? err( 5006 ) : ( paramH[paramH.length] = k, paramH[paramH.length] = v ) : paramP[paramP.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
+				k.charAt(0) === '@' ? ( k = k.substr(1).replace( trim, '' ) ).length === 0 ? err( 5006 ) : ( head[head.length] = k, head[head.length] = v ) : paramBody[paramBody.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
 			}else m = encodeURIComponent( k );
 		}
-		return m || paramP.join('&');
+		return m || paramBody.join('&');
 	};
 	url = function( url, arg ){
 		var t0 = url.replace( trim, '' ).split('#'), p = param(arg);
@@ -376,10 +376,10 @@ HTTP:
 		if( U.indexOf( '://' ) > -1 ? U.slice(0,7) === 'http://' || U.slice(0,8) === 'https://' ? U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) === location.hostname.domain ? 0 : 1 : 1 : 0 ){
 			if( !end ) err( 5002 );
 			x = cors() || err( 5001 );
-			key = ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ? ( paramH.splice( i, 2 ), paramH[i+1]  ) : CORSPROXYKEY ? CORSPROXYKEY : err( 5003 );
-			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = paramH.length + 2;
+			key = ( i = head.indexOf( 'corsAccessKey' ) ) > - 1 ? ( head.splice( i, 2 ), head[i+1]  ) : CORSPROXYKEY ? CORSPROXYKEY : err( 5003 );
+			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = head.length + 2;
 			while( i < j ){
-				corsHeader[i++] = k = paramH[i-3], corsHeader[i++] = paramH[i-3];
+				corsHeader[i++] = k = head[i-3], corsHeader[i++] = head[i-3];
 				if( httpHeader[k] ) httpH[httpH.length] = k;
 			}
 			k = i; for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], corsHeader[k++] = i, corsHeader[k++] = typeof j === 'function' ? j(type) : j;
@@ -391,9 +391,9 @@ HTTP:
 			x = xhr();
 			if( end ) async( x, end );
 			x.open( type, U, end ? true : false ),
-			httpH.length = i = 0, j = paramH.length;
+			httpH.length = i = 0, j = head.length;
 			while( i < j ){
-				x.setRequestHeader( k = paramH[i++], paramH[i++] );
+				x.setRequestHeader( k = head[i++], head[i++] );
 				if( httpHeader[k] ) httpH[httpH.length] = k;
 			}
 			for( i in httpHeader ) if( httpH.indexOf(i) === -1 ) j = httpHeader[i], x.setRequestHeader( i, typeof j === 'function' ? j(type) : j );
