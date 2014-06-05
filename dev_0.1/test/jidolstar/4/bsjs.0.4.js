@@ -302,42 +302,40 @@ HTTP:
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
 	})();
-	cors = (function(){
-		if( W['XDomainRequest'] ){
-			corsRun = (function(){ 
-				var async = function( x, end ){
-					var timeId, clr;
-					clr = function(){
-						if( timeId > -1 ) clearTimeout(timeId);
-						timeId = -1, x.onload = x.onerror = null;
-					}, x.onload = function(){
-						if( timeId < 0 ) return;
-						clr(), end( x.responseText, 200 );
-					}, x.onerror = function(){
-						if( timeId > -1 ) x.abort(), clr();
-						end( null, 'xdr error' );
-					}, timeId = setTimeout( function(){
-						if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
-					}, timeout );
-				};
-				return function( x, arg, end ){
-					async( x, end );
-					x.open( 'POST', CORSPROXY );
-					x.send(arg);
-				};
-			})(); 
-			return function(){ return new XDomainRequest; };
-		}else if( W['XMLHttpRequest'] ){
-			corsRun = function( x, arg, end ){
-				asyncXHR( x, end );
-				x.open( 'POST', CORSPROXY, true ),
-				x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
-				x.withCredentials = true;
+	cors = W['XDomainRequest'] ? ( 
+		corsRun = (function(){ 
+			var async = function( x, end ){
+				var timeId, clr;
+				clr = function(){
+					if( timeId > -1 ) clearTimeout(timeId);
+					timeId = -1, x.onload = x.onerror = null;
+				}, x.onload = function(){
+					if( timeId < 0 ) return;
+					clr(), end( x.responseText, 200 );
+				}, x.onerror = function(){
+					if( timeId > -1 ) x.abort(), clr();
+					end( null, 'xdr error' );
+				}, timeId = setTimeout( function(){
+					if( timeId > -1 ) x.abort(), clr(), end( null, 'timeout' );
+				}, timeout );
+			};
+			return function( x, arg, end ){
+				async( x, end );
+				x.open( 'POST', CORSPROXY );
 				x.send(arg);
 			};
-			return function(){ return new XMLHttpRequest; };
-		}else return 0;
-	})();
+		})(), 
+		function(){ return new XDomainRequest; }
+	) : W['XMLHttpRequest'] ? (
+		corsRun = function( x, arg, end ){
+			asyncXHR( x, end );
+			x.open( 'POST', CORSPROXY, true ),
+			x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+			x.withCredentials = true;
+			x.send(arg);
+		},
+		function(){ return new XMLHttpRequest; }
+	) : 0;
 	param = function(arg){
 		var i, j, k, v, m;
 		if( !arg || ( j = arg.length ) < 3 ) return '';
