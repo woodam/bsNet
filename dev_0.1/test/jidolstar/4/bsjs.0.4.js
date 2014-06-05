@@ -5,7 +5,7 @@
  */
 ( function( W, N ){
 'use strict';
-var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php',
+var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/',
 	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 0,
 	bs = W[N = N || 'bs'] = function(f){que ? ( que[que.length] = f ) : f();},
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );},
@@ -294,7 +294,8 @@ CORE:
 })(trim);
 HTTP:
 (function(){
-	var corsAccessKey = 'CORSPROXY_DEMO_ACCESS_KEY', httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
+	var corsDefaultUrl = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', corsDefaultKey = 'CORSPROXY_DEMO_ACCESS_KEY',
+		httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -356,10 +357,10 @@ HTTP:
 			if( U.length > 512 ) err( 5004 );
 		} else U = url( U ), arg = param( arg );
 		if( isCors ){
-			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
-			else if( corsAccessKey ) key = corsAccessKey;
-			else err( 5003 );
 			if( !( x = cors() ) ) err( 5001 );
+			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
+			else if( corsDefaultKey ) key = corsDefaultKey;
+			else err( 5003 );
 			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = paramH.length + 2;
 			while( i < j ){
 				corsHeader[i++] = k = paramH[i-3], corsHeader[i++] = paramH[i-3];
@@ -373,10 +374,10 @@ HTTP:
 			if( !end ) err( 5002 );
 			if( isXdr ){
 				asyncXDR( x, end );
-				x.open( 'POST', CORSPROXY );
+				x.open( 'POST', corsDefaultUrl );
 			}else{
 				asyncXHR( x, end );
-				x.open( 'POST', CORSPROXY, true ),
+				x.open( 'POST', corsDefaultUrl, true ),
 				x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
 				x.withCredentials = true;
 			}
@@ -398,7 +399,6 @@ HTTP:
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
-	fn( 'cors', function( k ){ corsAccessKey = k; } );	
 })();
 PLUGIN:
 (function( register, depends ){
