@@ -296,12 +296,12 @@ HTTP:
 (function(trim){
 	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, async;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
-	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
+	xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (function(){
 		var t0, i, j;
 		t0 = 'MSXML2.XMLHTTP', t0 = ['Microsoft.XMLHTTP',t0,t0+'.3.0',t0+'.4.0',t0+'.5.0'], i = t0.length;
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
-	})();
+	})() : function(){return new XMLHttpRequest;};
 	cors = W['XDomainRequest'] ? ( 
 		corsRun = (function(){ 
 			var async = function( x, end ){
@@ -324,8 +324,7 @@ HTTP:
 				x.open( 'POST', CORSPROXY );
 				x.send(arg);
 			};
-		})(), 
-		function(){ return new XDomainRequest; }
+		})(), function(){ return new XDomainRequest; }
 	) : W['XMLHttpRequest'] ? (
 		corsRun = function( x, arg, end ){
 			async( x, end );
@@ -333,15 +332,14 @@ HTTP:
 			x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
 			x.withCredentials = true;
 			x.send(arg);
-		},
-		function(){ return new XMLHttpRequest; }
+		}, function(){ return new XMLHttpRequest; }
 	) : 0;
 	param = function(arg){
 		var i, j, k, v, m;
 		if( !arg || ( j = arg.length ) < 3 ) return '';
 		paramH.length = paramP.length = 0, i = 2;
 		while( i < j ){
-			if( typeof( k = arg[i++] ) === 'string' && ( k = k.replace( trim, '' ) ).length !== 0 ){}else{ err( 5005 ); }
+			if( typeof( k = arg[i++] ) === 'string' && ( k = k.replace( trim, '' ) ).length !== 0 ){}else{err( 5005 );}
 			if( i < j ){
 				v = typeof( v = arg[i++] ) === 'string' ? v.replace( trim, '' ) : typeof v === 'number' || typeof v === 'boolean' ? v.toString() : typeof v === 'undefined' ? 'undefined' : typeof v === 'function' ? v.toString() : v === null ? 'null' : JSON.stringify(v);
 				k.charAt(0) === '@' ? ( k = k.substr(1).replace( trim, '' ) ).length === 0 ? err( 5006 ) : ( paramH[paramH.length] = k, paramH[paramH.length] = v ) : paramP[paramP.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
