@@ -378,9 +378,7 @@ HTTP:
 		if( U.indexOf( '://' ) > -1 ? U.slice(0,7) === 'http://' || U.slice(0,8) === 'https://' ? U.substring(U.indexOf('://')+3).slice(0, location.hostname.length) === location.hostname.domain ? 0 : 1 : 1 : 0 ){
 			if( !end ) err( 5002 );
 			x = cors() || err( 5001 );
-			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
-			else if( CORSPROXYKEY ) key = CORSPROXYKEY;
-			else err( 5003 );
+			key = ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ? ( paramH.splice( i, 2 ), paramH[i+1]  ) : CORSPROXYKEY ? CORSPROXYKEY : err( 5003 );
 			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = paramH.length + 2;
 			while( i < j ){
 				corsHeader[i++] = k = paramH[i-3], corsHeader[i++] = paramH[i-3];
