@@ -295,7 +295,7 @@ CORE:
 HTTP:
 (function(){
 	var corsDefaultUrl = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', corsDefaultKey = 'CORSPROXY_DEMO_ACCESS_KEY',
-		httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, isXdr, url, asyncXHR, asyncXDR;
+		httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -303,7 +303,25 @@ HTTP:
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
 		return function(){return new ActiveXObject(j);};
 	})();
-	cors = ( isXdr = W['XDomainRequest'] ? 1 : 0 ) ? function(){return new XDomainRequest;} : W['XMLHttpRequest'] ? function(){ return new XMLHttpRequest;} : none();
+	cors = (function(){
+		if( W['XDomainRequest'] ){
+			XDomainRequest.prototype.corsRun = function( arg, end ){
+				asyncXDR( this, end );
+				this.open( 'POST', corsDefaultUrl );
+				this.send(arg);
+			};
+			return function(){ return new XDomainRequest; };
+		}else if( W['XMLHttpRequest'] ){
+			XMLHttpRequest.prototype.corsRun = function( arg, end ){
+				asyncXHR( this, end );
+				this.open( 'POST', corsDefaultUrl, true ),
+				this.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+				this.withCredentials = true;
+				this.send(arg);
+			};
+			return function(){ return new XMLHttpRequest; };
+		}else return none();
+	})();
 	param = function(arg){
 		var i, j, k;
 		if( !arg || ( j = arg.length ) < 4 ) return '';
@@ -370,17 +388,7 @@ HTTP:
 			i = 2, corsBody[i++] = 'url', corsBody[i++] = U, corsBody[i++] = 'method', corsBody[i++] = type, 
 			corsBody[i++] = 'key', corsBody[i++] = key, corsBody[i++] = 'cookie', corsBody[i++] = document.cookie,
 			corsBody[i++] = 'data', corsBody[i++] = arg, corsBody[i++] = 'header', corsBody[i++] = param(corsHeader);
-			arg = param(corsBody);
-			if( isXdr ){
-				asyncXDR( x, end );
-				x.open( 'POST', corsDefaultUrl );
-			}else{
-				asyncXHR( x, end );
-				x.open( 'POST', corsDefaultUrl, true ),
-				x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
-				x.withCredentials = true;
-			}
-			x.send(arg);
+			x.corsRun( param(corsBody), end );
 		}else{
 			x = xhr();
 			if( end ) asyncXHR( x, end );
