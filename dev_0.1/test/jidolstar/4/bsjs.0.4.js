@@ -5,7 +5,7 @@
  */
 ( function( W, N ){
 'use strict';
-var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', CORSPROXYKEY = 'CORSPROXY_DEMO_ACCESS_KEY'
+var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', CORSPROXYKEY = 'CORSPROXY_DEMO_ACCESS_KEY',
 	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 0,
 	bs = W[N = N || 'bs'] = function(f){que ? ( que[que.length] = f ) : f();},
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );},
