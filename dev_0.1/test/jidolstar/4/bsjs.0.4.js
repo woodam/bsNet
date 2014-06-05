@@ -294,7 +294,7 @@ CORE:
 })(trim);
 HTTP:
 (function(trim){
-	var httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
+	var httpHeader, http, corsHeader, corsBody, xhr, cors, corsRun, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -304,19 +304,19 @@ HTTP:
 	})();
 	cors = (function(){
 		if( W['XDomainRequest'] ){
-			XDomainRequest.prototype.corsRun = function( arg, end ){
-				asyncXDR( this, end );
-				this.open( 'POST', CORSPROXY );
-				this.send(arg);
+			corsRun = function( x, arg, end ){
+				asyncXDR( x, end );
+				x.open( 'POST', CORSPROXY );
+				x.send(arg);
 			};
 			return function(){ return new XDomainRequest; };
 		}else if( W['XMLHttpRequest'] ){
-			XMLHttpRequest.prototype.corsRun = function( arg, end ){
-				asyncXHR( this, end );
-				this.open( 'POST', CORSPROXY, true ),
-				this.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
-				this.withCredentials = true;
-				this.send(arg);
+			corsRun = function( x, arg, end ){
+				asyncXHR( x, end );
+				x.open( 'POST', CORSPROXY, true ),
+				x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
+				x.withCredentials = true;
+				x.send(arg);
 			};
 			return function(){ return new XMLHttpRequest; };
 		}else return 0;
@@ -329,7 +329,7 @@ HTTP:
 			if( typeof( k = arg[i++] ) === 'string' && ( k = k.replace( trim, '' ) ).length !== 0 ){}else{ err( 5005 ); }
 			if( i < j ){
 				v = typeof( v = arg[i++] ) === 'string' ? v.replace( trim, '' ) : typeof v === 'number' || typeof v === 'boolean' ? v.toString() : typeof v === 'undefined' ? 'undefined' : typeof v === 'function' ? v.toString() : v === null ? 'null' : JSON.stringify(v);
-				( k.charAt(0) === '@' ) ? ( k = k.substr(1).replace( trim, '' ) ).length === 0 ? err( 5006 ) : ( paramH[paramH.length] = k, paramH[paramH.length] = v ) : paramP[paramP.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
+				k.charAt(0) === '@' ? ( k = k.substr(1).replace( trim, '' ) ).length === 0 ? err( 5006 ) : ( paramH[paramH.length] = k, paramH[paramH.length] = v ) : paramP[paramP.length] = encodeURIComponent(k) + '=' + encodeURIComponent(v);
 			}else m = encodeURIComponent( k );
 		}
 		return m || paramP.join('&');
@@ -388,7 +388,7 @@ HTTP:
 			i = 2, corsBody[i++] = 'url', corsBody[i++] = U, corsBody[i++] = 'method', corsBody[i++] = type, 
 			corsBody[i++] = 'key', corsBody[i++] = key, corsBody[i++] = 'cookie', corsBody[i++] = document.cookie,
 			corsBody[i++] = 'data', corsBody[i++] = arg, corsBody[i++] = 'header', corsBody[i++] = param(corsHeader);
-			x.corsRun( param(corsBody), end );
+			corsRun( x, param(corsBody), end );
 		}else{
 			x = xhr();
 			if( end ) asyncXHR( x, end );
