@@ -5,7 +5,7 @@
  */
 ( function( W, N ){
 'use strict';
-var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/',
+var VERSION = 0.4, REPOSITORY = 'http://projectbs.github.io/bsJSplugin/', CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', CORSPROXYKEY = 'CORSPROXY_DEMO_ACCESS_KEY'
 	none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], timeout = 5000, mk, comp, detect, isDebug = 0,
 	bs = W[N = N || 'bs'] = function(f){que ? ( que[que.length] = f ) : f();},
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );},
@@ -294,8 +294,7 @@ CORE:
 })(trim);
 HTTP:
 (function(){
-	var corsDefaultUrl = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', corsDefaultKey = 'CORSPROXY_DEMO_ACCESS_KEY',
-		httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
+	var httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
 		var t0, i, j;
@@ -307,14 +306,14 @@ HTTP:
 		if( W['XDomainRequest'] ){
 			XDomainRequest.prototype.corsRun = function( arg, end ){
 				asyncXDR( this, end );
-				this.open( 'POST', corsDefaultUrl );
+				this.open( 'POST', CORSPROXY );
 				this.send(arg);
 			};
 			return function(){ return new XDomainRequest; };
 		}else if( W['XMLHttpRequest'] ){
 			XMLHttpRequest.prototype.corsRun = function( arg, end ){
 				asyncXHR( this, end );
-				this.open( 'POST', corsDefaultUrl, true ),
+				this.open( 'POST', CORSPROXY, true ),
 				this.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ); 
 				this.withCredentials = true;
 				this.send(arg);
@@ -377,7 +376,7 @@ HTTP:
 			if( !end ) err( 5002 );
 			if( !( x = cors() ) ) err( 5001 );
 			if( ( i = paramH.indexOf( 'corsAccessKey' ) ) > - 1 ) key = paramH[i+1], paramH.splice( i, 2 );
-			else if( corsDefaultKey ) key = corsDefaultKey;
+			else if( CORSPROXYKEY ) key = CORSPROXYKEY;
 			else err( 5003 );
 			corsBody.length = corsHeader.length = httpH.length = 0, i = 2, j = paramH.length + 2;
 			while( i < j ){
