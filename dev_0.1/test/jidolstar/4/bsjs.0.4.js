@@ -293,7 +293,7 @@ CORE:
 	})
 })(trim);
 HTTP:
-(function(){
+(function(trim){
 	var httpHeader, http, corsHeader, corsBody, xhr, cors, paramH, paramP, param, httpH, url, asyncXHR, asyncXDR;
 	httpHeader = {}, paramH = [], paramP = [], httpH = [], corsBody = [], corsHeader = [];
 	xhr = W['XMLHttpRequest'] ? function(){return new XMLHttpRequest;} : (function(){
@@ -323,16 +323,16 @@ HTTP:
 	})();
 	param = function(arg){
 		var i, j, k;
-		if( !arg || ( j = arg.length ) < 4 ) return '';
+		if( !arg || ( j = arg.length ) < 3 ) return '';
 		paramH.length = paramP.length = 0, i = 2;
 		while( i < j )
-			if ( arg[i].charAt(0) === '@' ) paramH[paramH.length] = arg[i++].substr(1), paramH[paramH.length] = arg[i++];
-			else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++] ) + '=' + encodeURIComponent( arg[i++] );
-			else k = encodeURIComponent( arg[i++] );
+			if ( arg[i].charAt(0) === '@' ) paramH[paramH.length] = arg[i++].substr(1).replace( trim, '' ), paramH[paramH.length] = arg[i++].replace( trim, '' );
+			else if( i < j - 1 ) paramP[paramP.length] = encodeURIComponent( arg[i++].replace( trim, '' ) ) + '=' + encodeURIComponent( arg[i++].replace( trim, '' ) );
+			else k = encodeURIComponent( arg[i++].replace( trim, '' ) );
 		return k || paramP.join('&');
 	};
 	url = function( url, arg ){
-		var t0 = url.split('#'), p = param(arg);
+		var t0 = url.replace( trim, '' ).split('#'), p = param(arg);
 		return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + ( p ? '&' + p : '' ) + ( t0[1] ? '#' + t0[1] : '' );
 	};
 	asyncXHR = function( x, end ){
@@ -405,7 +405,7 @@ HTTP:
 	mk = function(m){ return function( end, url ){ return http( m, end, url, arguments ); }; },
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
 	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
-})();
+})(trim);
 PLUGIN:
 (function( register, depends ){
 	fn( 'repository', function(){return arguments[0] ? ( REPOSITORY = arguments[0] ) : REPOSITORY;} ),
