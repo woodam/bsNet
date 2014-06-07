@@ -46,13 +46,15 @@ case 'DELETE': echo __curl( $url, $header, $cookie, $data, CURLOPT_POST, TRUE, C
 }
 exit;
 function __curl( $url, $header, $cookie, $data ){
+	static $curlBase = array( CURLOPT_RETURNTRANSFER, TRUE, CURLOPT_SSL_VERIFYPEER, FALSE, CURLOPT_SSL_VERIFYHOST, 2 );
 	$t0 = curl_init();
-	curl_setopt( $t0, CURLOPT_HEADER, FALSE );
-	curl_setopt( $t0, CURLOPT_RETURNTRANSFER, TRUE );
-	curl_setopt( $t0, CURLOPT_URL, $url );
-	for( $i = 4, $args = func_get_args(), $cnt = count($args); $i < $cnt; ){
+	for( $i = 0, $j = count($curlBase); $i < $j; ){
+		curl_setopt( $t0, $curlBase[$i++], $curlBase[$i++] );
+	}
+	for( $i = 4, $args = func_get_args(), $j = func_num_args(); $i < $j; ){
 		curl_setopt( $t0, $args[$i++], $args[$i++] );
 	}
+	curl_setopt( $t0, CURLOPT_URL, $url );
 	if( $cookie && strlen($cookie) > 0 ) curl_setopt( $t0, CURLOPT_COOKIE, $cookie );
 	if( $header && count($header) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $header ); 
 	if( $data && strlen($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
