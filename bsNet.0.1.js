@@ -1,4 +1,4 @@
-var CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', CORSPROXYKEY = 'CORSPROXY_DEMO_ACCESS_KEY', bsNet = {};
+var CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY', bsNet = {};
 (function( trim, detect, fn, mk ){
 	var xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (function(){
 		var t0, i, j;
@@ -10,11 +10,11 @@ var CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/cors
 		var mk = function( x, err ){return function(){x.ontimeout = x.onload = x.onerror = null, err ? ( x.abort(), end( null, err ) ) : end( x.responseText, x.contentType );};};
 		return function( data, end ){
 			var x = new XDomainRequest;
-			x.ontimeout = mk( x, 'timeout'), x.timeout = timeout, x.onerror = mk( x, 'xdr error'), x.onload = mk( x, time), x.open( 'POST', CORSPROXY ), x.send(data);
+			x.ontimeout = mk( x, 'timeout'), x.timeout = timeout, x.onerror = mk( x, 'xdr error'), x.onload = mk( x, time), x.open( 'POST', CROSSPROXY ), x.send(data);
 		};
 	})() : W['XMLHttpRequest'] ? function( data, end ){
 		var x = xhr();
-		async( x, end ), x.open( 'POST', CORSPROXY, true ),	x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ), x.withCredentials = true, x.send(data);
+		async( x, end ), x.open( 'POST', CROSSPROXY, true ),	x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ), x.withCredentials = true, x.send(data);
 	} : 0,
 	url = function( U, arg ){
 		var t0 = U.replace( trim, '' ).split('#'), p = param( arg, 2 );
@@ -60,7 +60,7 @@ var CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/cors
 		}else U = url(U), arg = param( arg, 2 );
 		if( ( i = U.indexOf( '://' ) ) > -1 && U.substr( i + 3, ( j = location.hostname).length ) != j ){
 			if( !end || !cors ) return err(5001);
-			for( key = head.corsKey || CORSPROXYKEY, httpCors.length = httpH.length = i = 0, j = head.length ; i < j ; i += 2 )
+			for( key = head.corsKey || CROSSPROXYKEY, httpCors.length = httpH.length = i = 0, j = head.length ; i < j ; i += 2 )
 				baseHeader[httpCors[i] = k = head[i]] ? httpH[httpH.length] = k : 0, httpCors[i + 1] = head[i + 1];
 			k = i;
 			for( i in baseHeader ) if( httpH.indexOf(i) == -1 ) httpCors[k++] = i, httpCors[k++] = paramHeader(baseHeader[i]);
