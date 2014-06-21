@@ -1,6 +1,6 @@
-function http( trim, detect, fn, mk ){
-	var httpHeader = {}, head = [], paramBody = [], corsData = [], httpH = [], httpMethod,
-	xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (function(){
+var CORSPROXY = 'http://api.bsplugin.com/corsproxy/dev_0.1/test/jidolstar/4/corsproxy0.1.php', CORSPROXYKEY = 'CORSPROXY_DEMO_ACCESS_KEY', bsNet = {};
+(function( trim, detect, fn, mk ){
+	var xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (function(){
 		var t0, i, j;
 		t0 = 'MSXML2.XMLHTTP', t0 = ['Microsoft.XMLHTTP',t0,t0+'.3.0',t0+'.4.0',t0+'.5.0'], i = t0.length;
 		while( i-- ){try{new ActiveXObject( j = t0[i] );}catch(e){continue;}break;}
@@ -16,21 +16,6 @@ function http( trim, detect, fn, mk ){
 		var x = xhr();
 		async( x, end ), x.open( 'POST', CORSPROXY, true ),	x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ), x.withCredentials = true, x.send(data);
 	} : 0,
-	param = function( arg, i ){
-		var t0, j, k, v, m;
-		if( !arg || ( j = arg.length ) < i + 1 ) return '';
-		head.corsKey = head.length = paramBody.length = 0;
-		while( i < j ){
-			if( !( k = k.replace( trim, '' ) ).length ) err(5005);
-			if( i < j ){
-				v = arg[i++],
-				k.charAt(0) === '@' ? head.push( k.substr(1), typeof v == 'function' ? v(httpMethod) : v ) :
-				k == 'corsAccessKey' ? head.corsKey = v :
-					paramBody[paramBody.length] = encodeURIComponent(k) + '=' + encodeURIComponent(( v && typeof v == 'object' ? JSON.stringify(v) : v + '' ).replace( trim, '' ));
-			}else m = encodeURIComponent(k);
-		}
-		return m || paramBody.join('&');
-	},
 	url = function( U, arg ){
 		var t0 = U.replace( trim, '' ).split('#'), p = param( arg, 2 );
 		return t0[0] + ( t0[0].indexOf('?') > -1 ? '&' : '?' ) + 'bsNC=' + bs.rand( 1000, 9999 ) + ( p ? '&' + p : '' ) + ( t0[1] ? '#' + t0[1] : '' );
@@ -50,7 +35,24 @@ function http( trim, detect, fn, mk ){
 			x.onreadystatechange = null, end( text, status );
 		};
 	},
-	httpMethod, http = function( method, end, U, arg ){
+	head = [], paramBody = [], paramHeader = function(v){return typeof v == 'function' ? v(httpMethod) : v;},
+	param = function( arg, i ){
+		var t0, j, k, v, m;
+		if( !arg || ( j = arg.length ) < i + 1 ) return '';
+		head.corsKey = head.length = paramBody.length = 0;
+		while( i < j ){
+			if( !( k = arg[i++].replace( trim, '' ) ).length ) err(5005);
+			if( i < j ){
+				v = arg[i++],
+				k.charAt(0) === '@' ? head.push( k.substr(1), paramHeader(v) ) :
+				k == 'corsAccessKey' ? head.corsKey = v :
+					paramBody[paramBody.length] = encodeURIComponent(k) + '=' + encodeURIComponent(( v && typeof v == 'object' ? JSON.stringify(v) : v + '' ).replace( trim, '' ));
+			}else m = encodeURIComponent(k);
+		}
+		return m || paramBody.join('&');
+	},
+	httpCors = cors ? [] : 0, httpH = [], httpMethod,
+	http = function( method, end, U, arg ){
 		var x, key, i, j, k;
 		if( ( httpMethod = method ) === 'GET' ){
 			if( ( U = url( U, arg ) ).length > 512 ) err( 5004, U );
@@ -58,13 +60,13 @@ function http( trim, detect, fn, mk ){
 		}else U = url(U), arg = param( arg, 2 );
 		if( ( i = U.indexOf( '://' ) ) > -1 && U.substr( i + 3, ( j = location.hostname).length ) != j ){
 			if( !end || !cors ) return err(5001);
-			for( key = head.corsKey || CORSPROXYKEY, corsData.length = httpH.length = i = 0, j = head.length ; i < j ; i += 2 )
-				httpHeader[corsData[i] = k = head[i]] ? httpH[httpH.length] = k : 0, corsData[i + 1] = head[i + 1];
+			for( key = head.corsKey || CORSPROXYKEY, httpCors.length = httpH.length = i = 0, j = head.length ; i < j ; i += 2 )
+				baseHeader[httpCors[i] = k = head[i]] ? httpH[httpH.length] = k : 0, httpCors[i + 1] = head[i + 1];
 			k = i;
-			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) corsData[k++] = i, corsData[k++] = httpHeader[i];
-			k = param( corsData, 0 ), corsData.length = 0,
-			corsData.push( 'url', U, 'method', method, 'key', key, 'cookie', document.cookie, 'data', arg, 'header', k );
-			cors( param(corsData, 0), end );
+			for( i in baseHeader ) if( httpH.indexOf(i) == -1 ) httpCors[k++] = i, httpCors[k++] = paramHeader(baseHeader[i]);
+			k = param( httpCors, 0 ), httpCors.length = 0,
+			httpCors.push( 'url', U, 'method', method, 'key', key, 'cookie', document.cookie, 'data', arg, 'header', k );
+			cors( param(httpCors, 0), end );
 		}else{
 			x = xhr();
 			if( end ) async( x, end );
@@ -72,14 +74,14 @@ function http( trim, detect, fn, mk ){
 			httpH.length = i = 0, j = head.length;
 			while( i < j ){
 				x.setRequestHeader( k = head[i++], head[i++] );
-				if( httpHeader[k] ) httpH[httpH.length] = k;
+				if( baseHeader[k] ) httpH[httpH.length] = k;
 			}
-			for( i in httpHeader ) if( httpH.indexOf(i) == -1 ) x.setRequestHeader( i, httpHeader[i] );
+			for( i in baseHeader ) if( httpH.indexOf(i) == -1 ) x.setRequestHeader( i, paramHeader(baseHeader[i]) );
 			x.send(arg);
 			if( !end ) return i = x.responseText, x.onreadystatechange = null, i;
 		}
-	};
-	mk = function(m){return function( end, url ){return http( m, end, url, arguments );};};
-	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') ),
-	fn( 'header', function( k, v ){httpHeader[k] ? err( 2200, k ) : httpHeader[k] = v;} );
-}
+	}, baseHeader = {};
+	fn( 'header', function( k, v ){baseHeader[k] ? err( 2200, k ) : baseHeader[k] = v;} ),
+	mk = function(m){return function( end, url ){return http( m, end, url, arguments );};},
+	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') );
+})( /^\s*|\s*$/g,  {browser:W['XDomainRequest'] ? '!ie' : 'ie', browserVer:7}, function( k, v ){bsNet[k] = v;} );
