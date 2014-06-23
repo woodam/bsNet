@@ -1,3 +1,8 @@
+/* bsNet v0.1
+ * Copyright (c) 2013 by ProjectBS Committe and contributors. 
+ * http://www.bsplugin.com All rights reserved.
+ * Licensed under the BSD license. See http://opensource.org/licenses/BSD-3-Clause
+ */
 var CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY', bsNet = {};
 (function( trim, detect, fn, mk ){
 	var xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (function(){
@@ -7,10 +12,15 @@ var CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', CROSSPR
 		return function(){return new ActiveXObject(j);};
 	})() : function(){return new XMLHttpRequest;},
 	cross = W['XDomainRequest'] ? (function(){
-		var mk = function( x, err ){return function(){x.ontimeout = x.onload = x.onerror = null, err ? ( x.abort(), end( null, err ) ) : end( x.responseText, x.contentType );};};
+		var mk = function( x, err ){
+			return function(){
+				var v;
+				x.ontimeout = x.onload = x.onerror = null, err ? ( x.abort(), end( null, err ) ) : end(x.responseText);//( v = JSON.parse(x.responseText), end( v.data, v.header ) );
+			};
+		};
 		return function( data, end ){
 			var x = new XDomainRequest;
-			x.ontimeout = mk( x, 'timeout'), x.timeout = timeout, x.onerror = mk( x, 'xdr error'), x.onload = mk( x, time ), x.open( 'POST', CROSSPROXY ), x.send(data);
+			x.ontimeout = mk( x, 'timeout'), x.timeout = timeout, x.onerror = mk( x, 'xdr error'), x.onload = mk(x), x.open( 'POST', CROSSPROXY ), x.send(data);
 		};
 	})() : W['XMLHttpRequest'] ? function( data, end ){
 		var x = xhr();
@@ -84,4 +94,4 @@ var CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', CROSSPR
 	fn( 'header', function( k, v ){baseHeader[k] ? err( 2200, k ) : baseHeader[k] = v;} ),
 	mk = function(m){return function( end, url ){return http( m, end, url, arguments );};},
 	fn( 'post', mk('POST') ), fn( 'put', mk('PUT') ), fn( 'delete', mk('DELETE') ), fn( 'get', mk('GET') );
-})( /^\s*|\s*$/g,  {browser:W['XDomainRequest'] ? '!ie' : 'ie', browserVer:7}, function( k, v ){bsNet[k] = v;} );
+})( /^\s*|\s*$/g,  {browser:W['XMLHttpRequest'] ? '!ie' : 'ie', browserVer:7}, function( k, v ){bsNet[k] = v;} );
