@@ -25,14 +25,14 @@ if( count($_POST) == 0 && isset($HTTP_RAW_POST_DATA) ){
 	}
 }
 
-if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) || !isset($_POST['header'] ) || !isset($_POST['key']) || !isset($_POST['cookie']) ) {
+if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) || !isset($_POST['header'] ) || !isset($_POST['key']) ) {
 	__error('Wrong parameters');
 	exit;
 }
 
 $url = $_POST['url'];
 $method = $_POST['method'];
-$cookie = $_POST['cookie'];
+$cookie = isset($_POST['cookie']) ? $_POST['cookie'] : null;
 parse_str($_POST['header'], $temps);
 $header = array(); 
 foreach( $temps as $k => $v ) $header[] = $k.": ".$v;
