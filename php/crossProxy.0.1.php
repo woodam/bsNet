@@ -38,6 +38,9 @@ $header = array();
 foreach( $temps as $k => $v ) $header[] = $k.": ".$v;
 $data = $_POST['data'];
 
+// 아래 에코는 Debug 용
+echo $data;
+
 switch( $method ) {
 case 'GET': echo __curl( $url, $header, $cookie, '', CURLOPT_POST, FALSE ); break;
 case 'POST': echo __curl( $url, $header, $cookie, $data, CURLOPT_POST, TRUE ); break;

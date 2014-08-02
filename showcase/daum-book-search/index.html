@@ -97,7 +97,8 @@ bs( function(){
         
 
         var end = function (data) {
-
+console.log('---------- data from php ---------');
+console.log(data);
             var jsonObj = JSON.parse(data)
               , bookList = jsonObj.channel.item
             ;
