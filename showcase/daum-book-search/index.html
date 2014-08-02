@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+    <meta charset="UTF-8">
+    <title>bsNet Daum 도서 검색</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <style>
+    /* Sticky footer styles-------------------------------------------------- */
+    html,
+    body {
+      height: 100%;
+      /* The html and body elements cannot have any padding or margin. */
+    }
+
+    /* Wrapper for page content to push down footer */
+    #wrap {
+      min-height: 100%;
+      height: auto;
+      /* Negative indent footer by its height */
+      margin: 0 auto -60px;
+      /* Pad bottom by footer height */
+      padding: 0 0 60px;
+    }
+
+    /* Set the fixed height of the footer here */
+    #footer {
+      height: 60px;
+      background-color: #f5f5f5;
+    }
+
+
+    /* Custom page CSS
+    -------------------------------------------------- */
+    /* Not required for template or sticky footer method. */
+
+    .container {
+      width: auto;
+      max-width: 680px;
+      padding: 0 15px;
+    }
+    .container .credit {
+      margin: 20px 0;
+    }
+    </style>
+</head>
+<body>
+<!-- Wrap all page content here -->
+    <div id="wrap">
+
+      <!-- Begin page content -->
+      <div class="container">
+        <div class="page-header">
+          <h1>bsNet Daum 도서 검색</h1>
+        </div>
+        <div class='row'>
+        <form id='frmSearch'>
+            <div class='col-xs-8'><input id='txtKeyword' name='keyword' type="text" class="form-control" placeholder="검색어를 입력하세요"></div>
+            <div class='col-xs-4'><a id='btnSearch' class="btn btn-default" href="#" role="button">Search</a></div>            
+        </form>
+        </div>        
+      </div>
+      <p></p>
+      <div class="bs-example">
+        <div class="row">
+          <div id='searchResult'></div>      
+        </div>
+      </div><!-- /.bs-example -->
+      <div id="footer">
+        <div class="container">
+          <p class="text-muted credit">Powered by <a href='http://getbootstrap.com/' target='_blank'>BootStrap</a></p>
+        </div>
+      </div>
+    </div>
+<script src="http://projectbs.github.io/bsJS/bsjs.0.5.js"></script>
+<script>
+bs( function(){
+    var 
+        resultDiv = document.getElementById('searchResult')
+      , colDiv
+      , thumbDiv
+      , capDiv
+      , bookImg
+//      , h3Title = document.createElement('h3')
+    ;
+    
+    var clearResult = function() {
+        
+        while (resultDiv.firstChild) {
+            resultDiv.removeChild(resultDiv.firstChild);
+        }
+    };
+
+    var goSearch = function () {
+
+        clearResult();
+        
+
+        var end = function (data) {
+
+            var jsonObj = JSON.parse(data)
+              , bookList = jsonObj.channel.item
+            ;
+
+            for ( var i=0, max=bookList.length, book ; i < max ; i++ ) {
+                book = bookList[i];
+
+                colDiv = document.createElement('div');
+                thumbDiv = document.createElement('div');
+                capDiv = document.createElement('div');
+                bookImg = document.createElement('img');
+                titleP = document.createElement('p');
+
+                colDiv.setAttribute('class', 'col-sm-6 col-md-4');
+                thumbDiv.setAttribute('class', 'thumbnail');
+                capDiv.setAttribute('class', 'caption');
+
+                resultDiv.appendChild(colDiv);
+                colDiv.appendChild(thumbDiv);
+                bookImg.setAttribute('src', book.cover_l_url);
+                bookImg.setAttribute('data-src', book.cover_l_url);
+                bookImg.setAttribute('alt', 'Thumbnail');
+
+                titleP.innerHTML = book.title;
+
+                capDiv.appendChild(titleP)
+                capDiv.innerHTML='<h3>'+book.title+'</h3>'+'<p>'+book.description+'</p>'+'<a href="' + book.link + '" class="btn btn-primary" role="button" target="_blank">상세보기</a>';
+
+                thumbDiv.appendChild(bookImg);
+                thumbDiv.appendChild(capDiv);
+            }
+        }
+
+        
+        bs.post(end, 'http://apis.daum.net/search/book',
+                'apikey', 'DAUM_SEARCH_DEMO_APIKEY',
+                'output', 'json',
+                'q', bs.Dom('#txtKeyword')['0'].value);
+
+    };
+
+    bs.Dom('‪#‎txtKeyword‬').S('keydown', function(ev){
+		if(ev.keyName=='enter') ev.preventDefault(), goSearch();
+	});
+bs.Dom('#btnSearch').S('click', goSearch);
+    
+} );
+</script>
+</body>
+</html>
