@@ -6,6 +6,8 @@ bsNet은 XMLHttpRequest를 이용한 AJAX 통신과 <a href='http://msdn.microso
 
 # 동작 원리
 
+![](http://i.imgur.com/edMyZGD.png)
+
 - 원칙적으로 도메인A에 있는 사용자는 도메인B 나 도메인C와 통신 불가 
 - 도메인A에 있는 사용자는 같은 도메인A에 있는 bsJS에게 도메인C에 있는 자원을 요청
     - bsJS는 도메인B에 있는 crossproxy.php에게 사용자의 요청을 전달
@@ -13,8 +15,6 @@ bsNet은 XMLHttpRequest를 이용한 AJAX 통신과 <a href='http://msdn.microso
     - 또한 crossproxy.php는 브라우저가 아닌 서버에 존재하여 Same Origin Policy의 제약을 받지 않고 도메인C의 자원에 접근 가능
 - 따라서 도메인A의 사용자는 CORS에 대해 알지 못해도 도메인C의 자원에 접근 가능
 - 도메인C에 있는 서비스 제공자는 CORS 처리를 해두지 않아도 도메인A에 있는 브라우저에 서비스 제공 가능
-
-![](http://i.imgur.com/edMyZGD.png)
 
 # ShowCase
 
