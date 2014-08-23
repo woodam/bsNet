@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<title>bsNet 0.2 Open API Rest Mix Test</title>
+<meta charset="utf-8"/>
+<meta name="keywords" content="bsNet 0.2" />
+<meta name="description" content="bsNet 0.2 Open API Rest Mix Test" />
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="format-detection" content="telephone=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1.0,maximum-scale=1.0,minimum-scale=1.0,target-densitydpi=medium-dpi" />
+</head>
+<body>
+<div id="stage">
+	<form id="f0">
+		<label>Base Url</label>
+		<input type="text" id="base"/>
+		<label>Mix Url</label>
+		<input type="text" id="url"/>
+		<label>lookup</label>
+		<input type="text" id="url"/>
+		<label>method</label>
+		<input type="radio" name="method" id="method0" value="number"/> number
+		<input type="radio" name="method" id="method0" value="number"/> number
+		<label>type</label>
+		<input type="radio" name="method" id="method0" value="number"/> number
+		<input type="radio" name="method" id="method0" value="number"/> number
+		<label>key</label>
+		<input type="text" id="url"/>
+		<label>result</label>
+		<input type="text" id="url"/>
+		
+		<input type="button" id="btn" value="조회"/>
+	</form>
+	<div id="result"></div>
+</div>
+<script src="../../bsNet.0.2.js"></script>
+<script>
+var convert = function(v){
+	//json을 이쁜 트리뷰로
+};
+document.getElementById(btn).addEventListener('click', function(e){
+	
+	bsNet.get( function(data){
+		convert( JSON.parse(data) );
+	}, 'http://apis.daum.net/shopping/search?output=json&q=wii&apikey=DAUM_SHOP_DEMO_APIKEY',
+	'bsNet', {
+		lookup:'channel.item',
+		method:'number',//'object'
+		limit:'channel.item.length',//'k1,k2,k3,k4'
+		type:'link',//'data'
+		url:'https://openapi.daum.net/search/q=',
+		key:'maker',
+		result:'makerDetail',
+	} );
+} );
+/*
+$data;
+if( $lookupMethod == 'number' ){
+	for( $i = 0, $j = getData( $data, $lookupKey) ; $i < $j ; $i++ ){
+		if( $lookupType == 'data' ){
+			$data[$i][$resultAttr] = bs::get( str_replace( '{key}', $data[$i][$key], $lookupUrl ) );
+		}else{
+			$data[$i][$resultAttr] = str_replace( '{key}', $data[$i][$key], $lookupUrl );
+		}
+	}
+}else{
+	$lookupKey = explode( ',', $lookupKey );
+	foreach( $data as $k=>$v ){
+		if( array_indexof( $lookupKey, $k ) !== FALSE ){
+			$v[$resultAttr] = bs::get( str_replace( '{key}', $v[$key], $lookupUrl ) );
+		}
+	}
+}
+*/
+</script>
+</body>
+</html>
