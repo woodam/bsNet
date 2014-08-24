@@ -67,7 +67,7 @@ li { list-style: none;  }
 		</div>
 		<br clear="both">
 		<label>Mix Url</label>
-		<input type="text" id="url" value="http://apis.daum.net/search/web?apikey=DAUM_SEARCH_DEMO_APIKEY&q=@key@"/>
+		<input type="text" id="url" value="http://apis.daum.net/search/web?output=json&apikey=DAUM_SEARCH_DEMO_APIKEY&q=@key@"/>
 	</div>
 	<input type="button" id="btn" value=" Get Data! "/>
 </form>
@@ -105,24 +105,20 @@ domNode = function( key, val ) {
 bulletClick = function(d){
 	return function(){
 		var p = d.parentNode;
-		console.log( p.className );
 		p.className = p.className.indexOf("hidden") == -1 ? p.className + ' hidden' : p.className.substr( 0, p.className.indexOf("hidden") - 1 );
-		console.log( p.className );
 	}
 },
 convert = function(v){
 	document.getElementById('result').innerHTML = domValue(JSON.parse(v));
-	for( t0 = document.getElementsByClassName('bullet'), i = 0, j = t0.length ; i < j ; i++ ){
-		console.log(t0[i]);
-		t0[i].addEventListener( 'click', bulletClick(t0[i]) );
-	}
+	for( t0 = document.getElementsByClassName('bullet'), i = 0, j = t0.length ; i < j ; i++ ) t0[i].addEventListener( 'click', bulletClick(t0[i]) );
 };
 document.getElementById('btn').addEventListener( 'click', function(){
 	bsNet.get.apply( null, [
 		convert,
 		document.getElementById('base').value,
-		'bsNet',
+		'@bsNet',
 		{
+			command:'restMix',
 			lookup:document.getElementById('lookup').value,
 			method:document.getElementById('method0').checked ? 'array' : 'object',
 			limit:document.getElementById('limit').value,
@@ -133,26 +129,6 @@ document.getElementById('btn').addEventListener( 'click', function(){
 		}
 	] );
 } );
-/*
-$data;
-if( $lookupMethod == 'number' ){
-	for( $i = 0, $j = getData( $data, $lookupKey) ; $i < $j ; $i++ ){
-		if( $lookupType == 'data' ){
-			$data[$i][$resultAttr] = bs::get( str_replace( '{key}', $data[$i][$key], $lookupUrl ) );
-		}else{
-			$data[$i][$resultAttr] = str_replace( '{key}', $data[$i][$key], $lookupUrl );
-		}
-	}
-}else{
-	$lookupKey = explode( ',', $lookupKey );
-	foreach( $data as $k=>$v ){
-		if( array_indexof( $lookupKey, $k ) !== FALSE ){
-			$v[$resultAttr] = bs::get( str_replace( '{key}', $v[$key], $lookupUrl ) );
-		}
-	}
-}
-http://dna.daum.net/apis/shopping/ref#shopsearch
-*/
 </script>
 </body>
 </html>

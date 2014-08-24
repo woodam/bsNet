@@ -1,11 +1,13 @@
-/* bsNet v0.1
+/* bsNet v0.2
  * Copyright (c) 2013 by ProjectBS Committe and contributors. 
  * http://www.bsplugin.com All rights reserved.
  * Licensed under the BSD license. See http://opensource.org/licenses/BSD-3-Clause
  */
 'use strict';
 if( !this['console'] ) this['console'] = {log:function(){}};
-var CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY', bsNet = {}, isDebug = 0,
+var CROSSPROXY = 'http://www.bsidesoft.com/bs/bsNet/php/crossProxy.0.2.php', 
+//	CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', 
+	CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY', bsNet = {}, isDebug = 0,
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );}, 
 	bs = bs || {}, timeout = 5000, fn = function( k, v ){bsNet[k] = v;};
 	bs['rand'] || (function(){
@@ -59,7 +61,7 @@ var xhrType = 0, xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (funct
 			if( !( k = arg[i++].replace( trim, '' ) ).length ) err(5005);
 			if( i < j ){
 				v = arg[i++],
-				k.charAt(0) === '@' ? head.push( k.substr(1), paramHeader(v) ) :
+				k.charAt(0) === '@' ? (console.log('head'),head.push( k.substr(1), paramHeader(v) )) :
 				k == 'crossAccessKey' ? head.crossKey = v :
 					paramBody[paramBody.length] = encodeURIComponent(k) + '=' + encodeURIComponent(( v && typeof v == 'object' ? JSON.stringify(v) : v + '' ).replace( trim, '' ));
 			}else m = encodeURIComponent(k);
@@ -92,7 +94,6 @@ var xhrType = 0, xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (funct
 				if( baseHeader[k] ) httpH[httpH.length] = k;
 			}
 			for( i in baseHeader ) if( httpH.indexOf(i) == -1 ) x.setRequestHeader( i, paramHeader(baseHeader[i]) );
-
 			x.send(arg);
 			if( !end ) return ( i = x.responseText ), xhrType ? delete x.onreadystatechange : x.onreadystatechange = null, i;
 		}
