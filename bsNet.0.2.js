@@ -5,8 +5,7 @@
  */
 'use strict';
 if( !this['console'] ) this['console'] = {log:function(){}};
-var CROSSPROXY = 'http://www.bsidesoft.com/bs/bsNet/php/crossProxy.0.2.php', 
-//	CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.1.php', 
+var CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.2.php', 
 	CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY', bsNet = {}, isDebug = 0,
 	err = function( num, msg ){console.log( num, msg ); if( isDebug ) throw new Error( num, msg );}, 
 	bs = bs || {}, timeout = 5000, fn = function( k, v ){bsNet[k] = v;};

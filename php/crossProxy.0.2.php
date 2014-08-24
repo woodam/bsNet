@@ -1,4 +1,9 @@
 <?php
+/* bsNet - php v0.2
+ * Copyright (c) 2013 by ProjectBS Committe and contributors. 
+ * http://www.bsplugin.com All rights reserved.
+ * Licensed under the BSD license. See http://opensource.org/licenses/BSD-3-Clause
+ */
 function __curl( $url, $header, $cookie, $data ){
 	static $curlBase = array( CURLOPT_RETURNTRANSFER, TRUE, CURLOPT_SSL_VERIFYPEER, FALSE, CURLOPT_SSL_VERIFYHOST, 2 );
 	$t0 = curl_init();
