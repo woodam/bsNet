@@ -118,14 +118,14 @@ case'restMix':
 	for( $k = explode( '.', $k ), $i = 0, $j = count($k) ; $i < $j ; $i++ ) $t0 = &$t0[$k[$i]];
 	if( $cData['method'] == 'array' ){
 		for( $i = 0, $j = count($t0) ; $i < $j ; $i++ ){
-			$t1 = str_replace( '@key@', $t0[$i][$key], $url );
+			$t1 = str_replace( '@key@', urlencode($t0[$i][$key]), $url );
 			$t0[$i][$target] =  $type == 'data' ? json_decode( http( $method, $t1, $header, $cookie ), TRUE ) : $t1;
 		}
 	}else{
 		$limit = explode( ',', getData( $result, $cData['limit'] ) );
 		foreach( $limit as $k ){
 			if( isset( $t0[$k] ) ){
-				$t1 = str_replace( '@key@', $t0[$k][$key], $url );
+				$t1 = str_replace( '@key@', urlencode($t0[$k][$key]), $url );
 				$t0[$k][$target] = $type == 'data' ? json_decode( http( $method, $t1, $header, $cookie ), TRUE ) : $t1;
 			}
 		}
