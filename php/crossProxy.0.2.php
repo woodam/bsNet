@@ -48,7 +48,7 @@ function getData( &$v, $k ){
 	for( $k = explode( '.', $k ), $i = 0, $j = count($k) ; $i < $j ; $i++ ) $t0 = &$t0[$k[$i]];
 	return $t0;
 }
-function http( $method, $url, $header, $cookie ){
+function http( $method, $url, $header, $data, $cookie ){
 	switch( $method ){
 	case 'GET': return __curl( $url, $header, $cookie, '', CURLOPT_POST, FALSE );
 	case 'POST': return __curl( $url, $header, $cookie, $data, CURLOPT_POST, TRUE );
@@ -98,15 +98,15 @@ $cData = NULL;
 foreach( $temps as $k => $v ){
 	if( $k == 'bsNet' ){
 		$cData = json_decode( $v, true );
-		$commant = $cData['command'];
+		$command = $cData['command'];
 		unset($header['bsNet']);
 	}else{
 		$header[] = $k.": ".$v;
 	}
 }
 $data = $_POST['data'];
-$result = http( $method, $url, $header, $cookie );
-switch( $commant ){
+$result = http( $method, $url, $header, $data, $cookie );
+switch( $command ){
 case'restMix':
 	$result = json_decode( $result, TRUE );
 	$type = $cData['type'];
