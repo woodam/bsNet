@@ -2,7 +2,7 @@
 <html lang='ko'>
 <head>
     <meta charset="UTF-8">
-    <title>bsNet Daum 도서 검색</title>
+    <title>bsNet Naver 도서 검색</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
     <style>
@@ -51,7 +51,7 @@
       <!-- Begin page content -->
       <div class="container">
         <div class="page-header">
-          <h1>bsNet Daum 도서 검색</h1>
+          <h1>bsNet Naver 도서 검색</h1>
         </div>
         <div class='row'>
         <form id='frmSearch'>
@@ -101,6 +101,20 @@ console.log('---------- data from php ---------');
 console.log(data == null);
 console.log(data);
 			if (data) {
+				var xmlDom
+				  , xmlDoc = (xmlDom = new DOMParser()) ? 
+					  xmlDom : 
+					  (xmlDom = new ActiveXObject("Microsoft.XMLDOM"), xmlDom.async = false, xmlDom)
+				;
+				console.log('--- XMLDOC---');
+				console.log(xmlDoc);
+				console.log(xmlDoc.parseFromString);
+				xmlDoc = xmlDoc.parseFromString ? xmlDoc.parseFromString(data, "text/xml") : xmlDoc.loadXML(data);
+				console.log(xmlDoc);
+				console.log('--- XMLDOC---');
+				
+				
+/*
 				var jsonObj = JSON.parse(data)
 				  , bookList = jsonObj.channel.item
 				  ;
@@ -120,8 +134,8 @@ console.log(data);
 
 					resultDiv.appendChild(colDiv);
 					colDiv.appendChild(thumbDiv);
-					bookImg.setAttribute('src', book.cover_l_url);
-					bookImg.setAttribute('data-src', book.cover_l_url);
+					bookImg.setAttribute('src', book.image);
+					bookImg.setAttribute('data-src', book.image);
 					bookImg.setAttribute('alt', 'Thumbnail');
 
 					titleP.innerHTML = book.title;
@@ -132,15 +146,16 @@ console.log(data);
 					thumbDiv.appendChild(bookImg);
 					thumbDiv.appendChild(capDiv);
 				}
+*/
 			}            
         }
 
 console.log(bs.Dom('#txtKeyword')['0'].value);
         
-        bs.post(end, 'http://apis.daum.net/search/book',
-                'apikey', 'DAUM_SEARCH_DEMO_APIKEY',
-                'output', 'json',
-                'q', bs.Dom('#txtKeyword')['0'].value);
+        bs.post(end, 'http://openapi.naver.com/search',
+                'key', '7d24e46b8b0a63eec1b5ad2b39403404',
+				'target', 'book',
+                'query', bs.Dom('#txtKeyword')['0'].value);
 
     };
 
