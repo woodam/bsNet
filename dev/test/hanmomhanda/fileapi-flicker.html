@@ -36,10 +36,12 @@
 </section>
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="http://projectbs.github.io/bsJS/bsjs.0.6.js"></script>
+<script src="bsjs.0.6-dev.js"></script>
 <script>
 bs( function() {
 	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		var myFileList;
+
 		bs.fn('handlefileselect', function(evt) {
 			evt.stopPropagation();
 			evt.preventDefault();
@@ -56,6 +58,7 @@ bs( function() {
 			}
 			// document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
 			bs.Dom('#list').S('html', '<ul>' + output.join('') + '</ul>');
+			myFileList = files;
 
 			//TODO need to set input file infos
 		});
@@ -70,21 +73,48 @@ bs( function() {
 		dropZone.addEventListener('dragover', bs.handledragover, false);
 		dropZone.addEventListener('drop', bs.handlefileselect, false);
 
-		// bs.Dom('#drop_zone').S('dragover', bs.handledragover, false);
-		// bs.Dom('#drop_zone').S('drop', bs.handlefileselect, false);
+		// bs.Dom('#drop_zone').S('dragover', bs.handledragover);
+		// bs.Dom('#drop_zone').S('drop', bs.handlefileselect);
 
-		var end = function(data) {
-			//TODO <photoid>1234</photoid>
-		};
+		bs.Dom('#btnUploader').S('click', function() {
+			// console.log(myFileList);			
 
-		bs.post(end, 'https://up.flickr.com/services/upload/',
-				'api_key', 'ca0a9579bd8a8795886f47025bec40af',
-				'auth_token', '####',
-				'api_sig', '####',
-				// 
-				'q', bs.Dom('#txtKeyword')['0'].value);
+			for (var i = 0, j = myFileList.length; i < j ; i++) {
+				var xhr = new XMLHttpRequest(), file = myFileList[i];
+				xhr.open('POST', 'http://localhost/bsNet/dev/test/hanmomhanda/fileUploader.php', true);
+				xhr.setRequestHeader('X_FILENAME_ZZZ', encodeURIComponent(file.name));
+console.log('in html : ', file.name);
+				xhr.send(file);
+				xhr.onreadystatechange = function(){
+					var text, status;
+					if( xhr.readyState !== 4 ) return;
+					text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
+					status = text ? xhr.getAllResponseHeaders() : xhr.status,
+					end( text, status );
+				};
+				// bs.header('X_FILENAME', myFileList[i].name);
+				// bs.post('end', 
+				// 	    'http://localhost/bsNet/dev/test/hanmomhanda/fileUploader.php',
+				// 	    myFileList[i]);
+
+				// bs.post(end, 'https://up.flickr.com/services/upload/',
+				// 'api_key', 'ca0a9579bd8a8795886f47025bec40af',
+				// 'auth_token', '####',
+				// 'api_sig', '####',
+				// // 
+				// 'q', bs.Dom('#txtKeyword')['0'].value);
 
 		//TODO set Content-type to 'multipart/formdata' in bsNet
+			}
+		});
+
+		var end = function(data, status) {
+			//TODO <photoid>1234</photoid>
+			console.log(data);
+			console.log(status);
+		};
+
+		
 
 	} else {
 		alert('The File APIs are not fully supported in this browser.');
