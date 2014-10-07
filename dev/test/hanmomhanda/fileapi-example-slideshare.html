@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+	<title>bsNet FileAPI Sample</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+	<!-- Optional theme -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">	
+	<style>
+	.example {
+		padding: 10px;
+		border: 1px solid #ccc;
+	}
+	#drop_zone {
+		border: 2px dashed #bbb;
+		-moz-border-radius: 5px;
+		-webkit-border-radius: 5px;
+		border-radius: 5px;
+		padding: 25px;
+		text-align: center;
+		font: 20pt bold 'Vollkorn';
+		color: #bbb;
+	}
+	</style>
+</head>
+<body>
+<section>
+	<div class="container">
+		<h3>bsNet Image Upload to Flicker using HTML5 FileAPI</h3>
+		<div id="drop_zone">Drop files here</div>
+		<output id="list"></output>
+		<button id="btnUploader" class="btn btn-lg btn-block btn-primary">Upload to Flicker</button>
+	</div>
+</section>
+<script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="bsjs.0.6-dev.js"></script>
+<script>
+bs( function() {
+	if (window.File && window.FileReader && window.FileList && window.Blob) {
+		var myFileList;
+
+		bs.fn('handlefileselect', function(evt) {
+			evt.stopPropagation();
+			evt.preventDefault();
+
+			var files = evt.dataTransfer.files; // FileList object.
+
+			// files is a FileList of File objects. List some properties.
+			var output = [];
+			for (var i = 0, f; f = files[i]; i++) {
+				output.push('<li><strong>', escape(f.name), '</strong> (', f.type || 'n/a', ') - ',
+				f.size, ' bytes, last modified: ',
+				f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
+				'</li>');
+			}
+			// document.getElementById('list').innerHTML = '<ul>' + output.join('') + '</ul>';
+			bs.Dom('#list').S('html', '<ul>' + output.join('') + '</ul>');
+			myFileList = files;
+
+			//TODO need to set input file infos
+		});
+
+		bs.fn('handledragover', function(evt) {
+			evt.stopPropagation();
+			evt.preventDefault();
+			evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+		});
+
+		var dropZone = document.getElementById('drop_zone');
+		dropZone.addEventListener('dragover', bs.handledragover, false);
+		dropZone.addEventListener('drop', bs.handlefileselect, false);
+
+		// bs.Dom('#drop_zone').S('dragover', bs.handledragover);
+		// bs.Dom('#drop_zone').S('drop', bs.handlefileselect);
+
+		bs.Dom('#btnUploader').S('click', function() {
+			// console.log(myFileList);			
+
+			for (var i = 0, j = myFileList.length; i < j ; i++) {
+				var xhr = new XMLHttpRequest(), file = myFileList[i];
+				xhr.open('POST', 'http://localhost/bsNet/dev/test/hanmomhanda/fileUploader.php', true);
+				xhr.setRequestHeader('X_FILENAME_ZZZ', encodeURIComponent(file.name));
+console.log('in html : ', file.name);
+				xhr.send(file);
+				xhr.onreadystatechange = function(){
+					var text, status;
+					if( xhr.readyState !== 4 ) return;
+					text = xhr.status == 200 || xhr.status == 0 ? xhr.responseText : null,
+					status = text ? xhr.getAllResponseHeaders() : xhr.status,
+					end( text, status );
+				};
+				// bs.header('X_FILENAME', myFileList[i].name);
+				// bs.post('end', 
+				// 	    'http://localhost/bsNet/dev/test/hanmomhanda/fileUploader.php',
+				// 	    myFileList[i]);
+
+				// bs.post(end, 'https://up.flickr.com/services/upload/',
+				// 'api_key', 'ca0a9579bd8a8795886f47025bec40af',
+				// 'auth_token', '####',
+				// 'api_sig', '####',
+				// // 
+				// 'q', bs.Dom('#txtKeyword')['0'].value);
+
+		//TODO set Content-type to 'multipart/formdata' in bsNet
+			}
+		});
+
+		var end = function(data, status) {
+			//TODO <photoid>1234</photoid>
+			console.log(data);
+			console.log(status);
+		};
+
+		
+
+	} else {
+		alert('The File APIs are not fully supported in this browser.');
+	}
+
+
+} );
+</script>
+</body>
+</html>

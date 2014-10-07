@@ -14,7 +14,6 @@ function __curl( $url, $header, $cookie, $data ){
 		curl_setopt( $t0, $args[$i++], $args[$i++] );
 	}
 	curl_setopt( $t0, CURLOPT_URL, $url );
-
 	if( $cookie && strlen($cookie) > 0 ) curl_setopt( $t0, CURLOPT_COOKIE, $cookie );
 	if( $header && count($header) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $header ); 
 	if( $data && strlen($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
@@ -91,7 +90,7 @@ if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) 
 
 $url = $_POST['url'];
 $method = $_POST['method'];
-$cookie = isset($_POST['cookie']) ? urldecode($_POST['cookie']) : null;
+$cookie = isset($_POST['cookie']) ? $_POST['cookie'] : null;
 parse_str($_POST['header'], $temps);
 $header = array(); 
 $command = '';
@@ -106,8 +105,7 @@ foreach( $temps as $k => $v ){
 	}
 }
 $data = $_POST['data'];
-
-$result = http( $method, $url, $header, $data ? $data : json_encode(array('test'=>'test')), $cookie );
+$result = http( $method, $url, $header, $data, $cookie );
 switch( $command ){
 case'restMix':
 	$result = json_decode( $result, TRUE );
