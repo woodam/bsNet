@@ -58,9 +58,9 @@ function http( $method, $url, $header, $data, $cookie ){
 	}
 }
 header("Access-Control-Allow-Origin: *");
-header('Access-Control-Max-Age: 5');   
-header('Access-Control-Allow-Methods: POST, OPTIONS');   
-header('Access-Control-Allow-header: Content-Type, Cache-Control');       
+header('Access-Control-Max-Age: 5');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-header: Content-Type, Cache-Control');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: text/html; charset=utf-8');
 
