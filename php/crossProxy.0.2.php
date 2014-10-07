@@ -57,7 +57,7 @@ function http( $method, $url, $header, $data, $cookie ){
 	case 'DELETE': return __curl( $url, $header, $cookie, $data, CURLOPT_POST, TRUE, CURLOPT_CUSTOMREQUEST, $method );
 	}
 }
-header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+header("Access-Control-Allow-Origin: *");
 header('Access-Control-Max-Age: 5');   
 header('Access-Control-Allow-Methods: POST, OPTIONS');   
 header('Access-Control-Allow-header: Content-Type, Cache-Control');       
