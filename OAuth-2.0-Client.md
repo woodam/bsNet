@@ -41,9 +41,16 @@
 
 사용자가 bsNet의 crossproxy를 이용한다는 것은 사용자 애플리케이션이 Same Origin Policy의 제약을 받는 Public Client라는 것을 의미하므로 bsNet의 OAuth 2.0 client 는 Implicit 인증 방식을 기준으로 작성한다.
 
-### bsJS
+### 만들어야 할 것
 
-#### 파라미터
+- bsJS, crossproxy를 통해 access_token을 요청하는 html - (A)
+- (A)가 전송한 access_token 요청용 정보를 가공해서 인증 서버로 요청을 날리는 crossproxy 안의 추가 로직
+- access_token을 받아서 다시 bsJS, crossproxy를 통해 API를 호출하는 html(redirect_uri가 되는 html) - (B)
+- (B)가 전송한 API 호출용 정보를 가공해서 API 서버로 요청을 날리고 결과값을 받아 (B)에 반환하는 crossproxy 안의 추가 로직
+
+### access_token 요청 html
+
+#### bsJS 호출
 
 bs.post() 파라미터로 OAuth 2.0 Spec에 따른 아래의 항목 추가
 
@@ -59,6 +66,29 @@ bs.post() 파라미터로 OAuth 2.0 Spec에 따른 아래의 항목 추가
 #### custom protocol은 고려 대상에서 제외
 
 google://API-URL/parameter, dropbox://API-URL/parameter 과 같은 형식의 custom protocol 사용을 검토한 바 있으나, Implicit 인증 방식의 경우 보안 문제로 프로토콜을 https로 강제하는 API 서버(Google)도 있으므로, custom protocol 은 고려 대상에서 제외한다. 
+
+### crossproxy의 access_token 요청 로직 
+
+access_token 요청
+
+- bsJS를 통해 access_token 요청 html이 보내준 인증용 정보를 받아서
+- 인증 서버에서 정한 규약에 맞게 가공하여 인증 서버로 전달하고,
+	- 인증 서버는 redirect_uri로 access_token 반환 
+
+### redirect_uri
+
+인증 서버가 반환해준 access_token 를 받아서 bsJS, crossproxy를 통해 API 호출
+
+- bsJS를 통해 access_token과 API 호출용 파라미터를 crossproxy에 전송
+
+### crossproxy의 API 요청 로직
+
+access_token과 API 요청용 파라미터로 외부 API를 호출하고 결과를 redirect_uri로 반환
+
+- bsJS를 통해 redirect_uri가 보낸 access_token을 API 서버가 정한 규약에 맞게 가공해서,
+- API 호출 파라미터와 함께 API 서버에 있는 API 를 호출하고,
+- 결과를 redirect_uri로 반환
+
 
 ----------
 Copyrightⓒ 2013, ProjectBS Committee. All rights reserved.
