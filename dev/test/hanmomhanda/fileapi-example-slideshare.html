@@ -28,10 +28,10 @@
 <body>
 <section>
 	<div class="container">
-		<h3>bsNet Image Upload to Flicker using HTML5 FileAPI</h3>
+		<h3>bsNet PPT file Upload to SlideShare using HTML5 FileAPI</h3>
 		<div id="drop_zone">Drop files here</div>
 		<output id="list"></output>
-		<button id="btnUploader" class="btn btn-lg btn-block btn-primary">Upload to Flicker</button>
+		<button id="btnUploader" class="btn btn-lg btn-block btn-primary">Upload to SlideShare</button>
 	</div>
 </section>
 <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
@@ -77,8 +77,10 @@ bs( function() {
 		// bs.Dom('#drop_zone').S('drop', bs.handlefileselect);
 
 		bs.Dom('#btnUploader').S('click', function() {
-			// console.log(myFileList);			
-
+			// Real Target URL
+			// https://www.slideshare.net/api/2/upload_slideshow
+			// Required Parameters for SlideShare
+			// api_key, ts, hash, username, password, slideshow_title, slideshow_srcfile | upload_url
 			for (var i = 0, j = myFileList.length; i < j ; i++) {
 				var xhr = new XMLHttpRequest(), file = myFileList[i];
 				xhr.open('POST', 'http://localhost/bsNet/dev/test/hanmomhanda/fileUploader.php', true);
