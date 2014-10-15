@@ -55,7 +55,7 @@
 bs.post() 파라미터로 OAuth 2.0 Spec에 따른 아래의 항목 추가
 
 - response_type - 필수
-- cient_id - 필수
+- client_id - 필수
 - redirect_uri - Spec상 필수는 아니나 사실 상 필수
 - scope - 선택
 - state - 선택
@@ -77,11 +77,11 @@ access_token 요청
 
 ### redirect_uri
 
-인증 서버가 반환해준 access_token 를 받아서 bsJS, crossproxy를 통해 API 호출
+인증 서버가 반환해준 access_token 를 받아서 bsJS, crossproxy를 통해 API 호출하는 html
 
 - bsJS를 통해 access_token과 API 호출용 파라미터를 crossproxy에 전송
 
-### crossproxy의 API 요청 로직
+### crossproxy의 API 호출 로직
 
 access_token과 API 요청용 파라미터로 외부 API를 호출하고 결과를 redirect_uri로 반환
 
