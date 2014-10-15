@@ -59,3 +59,8 @@ bs.post() 파라미터로 OAuth 2.0 Spec에 따른 아래의 항목 추가
 #### custom protocol은 고려 대상에서 제외
 
 google://API-URL/parameter, dropbox://API-URL/parameter 과 같은 형식의 custom protocol 사용을 검토한 바 있으나, Implicit 인증 방식의 경우 보안 문제로 프로토콜을 https로 강제하는 API 서버(Google)도 있으므로, custom protocol 은 고려 대상에서 제외한다. 
+
+----------
+Copyrightⓒ 2013, ProjectBS Committee. All rights reserved.
+
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target='_blank'><img alt="크리에이티브 커먼즈 라이선스" style="border-width:0" src="http://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br /><span xmlns:cc="http://creativecommons.org/ns#" property="cc:attributionName">ProjectBS</span>의 저작물인 이 저작물은(는) <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" target='_blank'><b>크리에이티브 커먼즈 저작자표시-비영리-동일조건변경허락 4.0 국제 라이선스</b></a>에 따라 이용할 수 있습니다.<br />이 라이선스의 범위 이외의 이용허락을 얻기 위해서는 <a xmlns:cc="http://creativecommons.org/ns#" href="http://www.bsplugin.com" rel="cc:morePermissions" target='_blank'>http://www.bsplugin.com</a>을 참조하십시오.
