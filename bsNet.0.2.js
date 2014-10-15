@@ -29,7 +29,7 @@ var xhrType = 0, xhr = detect.browser === 'ie' && detect.browserVer < 9 ? (funct
 		};
 	})() : W['XMLHttpRequest'] ? function( data, end ){
 		var x = xhr();
-		async( x, end ), x.open( 'POST', CROSSPROXY, true ), x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ), x.withCredentials = true, x.send(data);
+		async( x, end ), x.open( 'POST', CROSSPROXY, true ), x.setRequestHeader( 'Content-Type', 'application/x-www-form-urlencoded; charset=UTF-8' ), x.withCredentials = false, x.send(data);
 	} : 0,
 	url = function( U, arg ){
 		var t0 = U.replace( trim, '' ).split('#'), p = param( arg, 2 );

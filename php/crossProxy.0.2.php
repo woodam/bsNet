@@ -14,6 +14,7 @@ function __curl( $url, $header, $cookie, $data ){
 		curl_setopt( $t0, $args[$i++], $args[$i++] );
 	}
 	curl_setopt( $t0, CURLOPT_URL, $url );
+
 	if( $cookie && strlen($cookie) > 0 ) curl_setopt( $t0, CURLOPT_COOKIE, $cookie );
 	if( $header && count($header) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $header ); 
 	if( $data && strlen($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
@@ -56,10 +57,10 @@ function http( $method, $url, $header, $data, $cookie ){
 	case 'DELETE': return __curl( $url, $header, $cookie, $data, CURLOPT_POST, TRUE, CURLOPT_CUSTOMREQUEST, $method );
 	}
 }
-header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
-header('Access-Control-Max-Age: 5');   
-header('Access-Control-Allow-Methods: POST, OPTIONS');   
-header('Access-Control-Allow-header: Content-Type, Cache-Control');       
+header("Access-Control-Allow-Origin: *");
+header('Access-Control-Max-Age: 5');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-header: Content-Type, Cache-Control');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: text/html; charset=utf-8');
 
@@ -90,7 +91,7 @@ if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) 
 
 $url = $_POST['url'];
 $method = $_POST['method'];
-$cookie = isset($_POST['cookie']) ? $_POST['cookie'] : null;
+$cookie = isset($_POST['cookie']) ? urldecode($_POST['cookie']) : null;
 parse_str($_POST['header'], $temps);
 $header = array(); 
 $command = '';
@@ -105,7 +106,8 @@ foreach( $temps as $k => $v ){
 	}
 }
 $data = $_POST['data'];
-$result = http( $method, $url, $header, $data, $cookie );
+
+$result = http( $method, $url, $header, $data ? $data : json_encode(array('test'=>'test')), $cookie );
 switch( $command ){
 case'restMix':
 	$result = json_decode( $result, TRUE );
