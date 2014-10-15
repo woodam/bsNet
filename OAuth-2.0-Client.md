@@ -62,6 +62,11 @@ bs.post() 파라미터로 OAuth 2.0 Spec에 따른 아래의 항목 추가
 - scope - 선택
 - state - 선택
 
+Spec에는 없지만 구현을 위해 필요한 파라미터
+
+- api_provider : Google | Facebook | Twitter | ...
+	- crossproxy.php 를 여러 사람이 동시 편집하게 되므로 분리해서 작성하기 위한 구분자로 사용
+
 필수, 선택 여부는 인증 서버에서 정한 규약에 따른다.
 추후 주요 API 서버(Google, Facebook, Twitter, Naver, Dropbox, ...)도 별도의 식별자를 두어 파라미터로 전달하고, 해당 API 서버 처리를 위한 내부로직을 재사용할 수 있도록 라이브러리화
 
