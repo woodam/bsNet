@@ -16,9 +16,26 @@ bsNet은 XMLHttpRequest를 이용한 AJAX 통신과 <a href='http://msdn.microso
 - 따라서 도메인A의 사용자는 CORS에 대해 알지 못해도 도메인C의 자원에 접근 가능
 - 도메인C에 있는 서비스 제공자는 CORS 처리를 해두지 않아도 도메인A에 있는 브라우저에 서비스 제공 가능
 
+# 장점
+
+bsNet은 단순한 기술 수준을 넘어 **웹 개발 프로젝트 진행 방법의 획기적인 변화**를 가져올 수 있습니다.
+
+백엔드의 데이터를 기반으로 웹 서비스를 구축할 때 최근에는 DataSource 자체를 개방하지 않고 REST API를 개방합니다.
+REST API를 호출하는 웹 서비스(REST API Consumer)는 주로 AJAX로 구현되므로, Same Origin Policy 정책 때문에 아래와 같이 Test(또는 Dev) 서버 내에 REST API Consumer와 REST API를 모두 배포해서 Test 서버 내에서 호출하게 됩니다.
+
+![](http://i.imgur.com/wULPl4W.png)
+
+하지만, Cross Domain 통신이 가능한 bsNet을 적용하면 개발 과정에서 배포를 할 필요 없이 바로 백엔드의 API를 호출할 수 있습니다.
+
+![](http://i.imgur.com/tY69DCu.png)
+
+개발을 마치고 운영으로 전환할 경우에도 bsNet을 적용해서 개발했던 소스를 고치지 않고, 운영 서버로 바로 이관하면 됩니다.
+
+![](http://i.imgur.com/Bjy8RHp.png)
+
 # ShowCase
 
-bsNet의 예제는 작성 중입니다.
+bsNet의 예제는 작성 중 입니다.
 
 # License
 
