@@ -18,7 +18,7 @@ bsNet은 XMLHttpRequest를 이용한 AJAX 통신과 <a href='http://msdn.microso
 
 # ShowCase
 
-bsNet의 예제는 <a href='http://projectbs.github.io/bsNet/' target='_blank'><b>여기</b></a>에서 보실 수 있습니다.
+bsNet의 예제는 작성 중입니다.
 
 # License
 
