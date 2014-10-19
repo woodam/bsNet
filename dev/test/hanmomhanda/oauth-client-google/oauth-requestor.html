@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+<meta charset='utf-8'>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+</head>
+<body>
+<div id='title'>
+	<h1>Google API OAuth Request</h1>
+</div>
+<div id='request-container'>
+	<button id='get-google-oauth' class='btn btn-large btn-block btn-primary'>구글 OAuth 요청</button>
+</div>
+<script src="..//bsjs.0.6-dev.js"></script>
+<script>
+bs( function() {
+
+	var _url = 'https://accounts.google.com/o/oauth2/auth',
+	    _response_type = 'token',
+	    _client_id = '746251447178-g6nrqp42smeikfc72g5ss8cek8fritof.apps.googleusercontent.com',
+	    _redirect_uri = 'oauth2callback',
+	    _scope = 'gmail.readonly',
+	    _api_provider = 'Google';
+
+
+	var getAccessToken = function() { 
+		bs.post(end, _url, 
+			'response_type', _response_type,
+			'client_id', _client_id,
+			'redirect_uri', _redirect_uri,
+			'scope', _scope
+		);
+
+	};
+
+	var end = function(data) {
+		console.log(data);
+	}
+
+	bs.Dom('#get-google-oauth').S('click', getAccessToken);
+
+
+} );
+</script>
+</body>
+</html>

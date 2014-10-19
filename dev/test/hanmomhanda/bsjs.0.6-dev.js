@@ -8,7 +8,7 @@
 var VERSION = 0.6, REPOSITORY = 'http://projectbs.github.io/bsPlugin/js/',
 	CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY',
 	// CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.2.php',
-	CROSSPROXY = 'http://localhost/bsNet/dev/test/hanmomhanda/crossProxy.0.2.php',
+	CROSSPROXY = 'http://localhost/bsNet/dev/test/hanmomhanda/crossProxy.0.2-dev.php',
 	NETWORKERKEY = 'BSNETWORKER_20140707',
 	NETWORKER = 'http://www.bsidesoft.com/bs/bsPHP/index.php/networker',
 	log, none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], plugin, timeout = 5000, mk, comp, detect, isDebug = 0,
