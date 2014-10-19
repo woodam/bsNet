@@ -12,7 +12,7 @@
 <div id='request-container'>
 	<button id='get-google-oauth' class='btn btn-large btn-block btn-primary'>구글 OAuth 요청</button>
 </div>
-<script src="..//bsjs.0.6-dev.js"></script>
+<script src="../bsjs.0.6-dev.js"></script>
 <script>
 bs( function() {
 
@@ -29,7 +29,8 @@ bs( function() {
 			'response_type', _response_type,
 			'client_id', _client_id,
 			'redirect_uri', _redirect_uri,
-			'scope', _scope
+			'scope', _scope,
+			'api_provider', _api_provider
 		);
 
 	};
