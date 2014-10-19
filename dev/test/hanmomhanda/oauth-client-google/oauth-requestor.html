@@ -12,6 +12,7 @@
 <div id='request-container'>
 	<button id='get-google-oauth' class='btn btn-large btn-block btn-primary'>구글 OAuth 요청</button>
 </div>
+<div id="result"></div>
 <script src="../bsjs.0.6-dev.js"></script>
 <script>
 bs( function() {
@@ -20,24 +21,19 @@ bs( function() {
 	    _response_type = 'token',
 	    _client_id = '746251447178-g6nrqp42smeikfc72g5ss8cek8fritof.apps.googleusercontent.com',
 	    _redirect_uri = 'http://apexsoft-svr1.iptime.org:9180/bsNet/dev/test/hanmomhanda/oauth-client-google/oauth-redirected.html',
-	    _scope = 'gmail.readonly',
+	    _scope = 'https://www.googleapis.com/auth/gmail.readonly',
 	    _api_provider = 'Google';
 
-
-	var getAccessToken = function() { 
-		bs.post(end, _url, 
-			'response_type', _response_type,
-			'client_id', _client_id,
-			'redirect_uri', _redirect_uri,
-			'scope', _scope,
-			'api_provider', _api_provider
-		);
-
+	var getAccessToken = function() {
+		// token 을 얻는 과정에서 사용자 로그인 화면으로 자동으로 리다이렉트 되기 때문에
+		// ajax로 로그인 정보를 미리 주고 통과할 방법이 없음
+		// 따라서 그냥 href로 인증 토큰 요청하는 화면으로 바로 이동
+		window.location.href = _url + '?' +
+				               'response_type=' + _response_type + '&' +
+							   'client_id=' + _client_id + '&' +
+							   'redirect_uri=' + _redirect_uri + '&' +
+							   'scope=' + _scope;
 	};
-
-	var end = function(data) {
-		console.log(data);
-	}
 
 	bs.Dom('#get-google-oauth').S('click', getAccessToken);
 

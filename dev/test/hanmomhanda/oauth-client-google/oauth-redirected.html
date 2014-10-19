@@ -7,13 +7,39 @@
 </head>
 <body>
 <div id='title'>
-	<h1>Redirected by Google OAuth Server</h1>
+	<h1>Redirected by OAuth Server</h1>
 </div>
 <div id='access-token'>	
 </div>
 <div id='container-button'>
-	<button id='get-gmail' class='btn btn-large btn-block btn-warning'>GMail API 호출</button>
+	<button id='get-gmail' class='btn btn-large btn-block btn-warning'>GMail API 호출 - 받은편지함</button>
 </div>
-<script src="..//bsjs.0.6-dev.js"></script>
+<script src="../bsjs.0.6-dev.js"></script>
+<script>
+bs( function() {
+	// First, parse the query string
+	var params = {}, queryString = location.hash.substring(1),
+		regex = /([^&=]+)=([^&]*)/g, m,
+		_url = 'https://www.googleapis.com/gmail/v1/users/me/',
+		_rest_api = 'messages',
+		getGmailRest = function() {
+			var access_token = params.access_token;
+			
+			bs.get(end, _url + _rest_api, 
+				'@Authorization', 'Bearer ' + access_token
+			);
+
+		},
+		end = function(data) {
+			bs.Dom('<div id="result"></div>').S('<', 'body', 'html', data)	
+		};
+		
+	while (m = regex.exec(queryString)) {
+	  params[decodeURIComponent(m[1])] = decodeURIComponent(m[2]);
+	}
+
+	bs.Dom('#get-gmail').S('click', getGmailRest);
+} );
+</script>
 </body>
 </html>

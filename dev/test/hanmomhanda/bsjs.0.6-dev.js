@@ -8,7 +8,7 @@
 var VERSION = 0.6, REPOSITORY = 'http://projectbs.github.io/bsPlugin/js/',
 	CROSSPROXYKEY = 'CROSSPROXY_DEMO_ACCESS_KEY',
 	// CROSSPROXY = 'http://api.bsplugin.com/bsNet/php/crossProxy.0.2.php',
-	CROSSPROXY = 'http://localhost/bsNet/dev/test/hanmomhanda/crossProxy.0.2-dev.php',
+	CROSSPROXY = 'http://apexsoft-svr1.iptime.org:9180/bsNet/dev/test/hanmomhanda/crossProxy.0.2-dev.php',
 	NETWORKERKEY = 'BSNETWORKER_20140707',
 	NETWORKER = 'http://www.bsidesoft.com/bs/bsPHP/index.php/networker',
 	log, none = function(){}, trim = /^\s*|\s*$/g, doc = W['document'], que = [], pque = [], plugin, timeout = 5000, mk, comp, detect, isDebug = 0,
@@ -562,6 +562,9 @@ NET:
 			for( i in baseHeader ) if( httpH.indexOf(i) == -1 ) httpCross[k++] = i, httpCross[k++] = paramHeader(baseHeader[i]);
 			k = param( httpCross, 0 ), httpCross.length = 0,
 			httpCross.push( 'url', U, 'cookie', ck, 'method', method, 'key', key, 'data', arg, 'header', k );
+console.log('url : ', U);
+console.log('data : ', arg);
+console.log('header : ', k);
 			cross( param(httpCross, 0), end );
 		}else{
 			x = xhr();

@@ -18,7 +18,13 @@ function __curl( $url, $header, $cookie, $data ){
 	if( $header && count($header) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $header ); 
 	if( $data && strlen($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
 	$t1 = curl_exec( $t0 );
-	curl_close( $t0 );
+//// Check if any error occurred
+//if(!curl_errno($t0)) {
+// $info = curl_getinfo($t0);
+// echo 'Took ' . $info['total_time'] . ' seconds to send a request to ' . $info['url'] . "\n"; 
+// print_r($info);
+//}
+
 	return $t1 === FALSE ? curl_error( $t0 ) : $t1;
 }
 function __exception_handler( $e ) {      
@@ -62,7 +68,6 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-header: Content-Type, Cache-Control');       
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: text/html; charset=utf-8');
-
 error_reporting( E_ALL );
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
@@ -105,6 +110,7 @@ foreach( $temps as $k => $v ){
 	}
 }
 $data = $_POST['data'];
+$header[] = 'Content-Length: ' . strlen($data);
 $result = http( $method, $url, $header, $data, $cookie );
 switch( $command ){
 case'restMix':

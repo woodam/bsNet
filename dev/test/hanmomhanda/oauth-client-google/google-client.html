@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+<meta charset='utf-8'>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+</head>
+<body>
+<button id="getRest">GET Rest</button>
+<script src="../bsjs.0.6-dev.js"></script>
+<script src="https://apis.google.com/js/api.js"></script>
+<script>
+bs( function() {	
+	var getRest = function() {
+		bs.get(end, 'https://www.googleapis.com/gmail/v1/users/me/messages',
+			'@Authorization', 'Bearer ya29.owDSix5nqYRmq_21RyREZ3rFKKVMP_tzrHqtAz9LrvRxGPoBpjXLvzlE'
+		);
+	};	
+	
+	var end = function(data) {
+		console.log(data);
+	};
+	
+	bs.Dom('#getRest').S('click', getRest);
+} );
+</script>
+</body>
+</html>
