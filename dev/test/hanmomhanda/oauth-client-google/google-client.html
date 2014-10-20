@@ -12,11 +12,9 @@
 <script>
 bs( function() {	
 	var getRest = function() {
-		bs.get(end, 'https://www.googleapis.com/gmail/v1/users/me/messages',
-			'@Authorization', 'Bearer ya29.owDSix5nqYRmq_21RyREZ3rFKKVMP_tzrHqtAz9LrvRxGPoBpjXLvzlE'
-		);
-	};	
-	
+    // 아래의 구글 라이브러리 사용 코드는 undefined에러 발생
+    // https://developers.google.com/api-client-library/javascript/features/cors 
+    };	
 	var end = function(data) {
 		console.log(data);
 	};
