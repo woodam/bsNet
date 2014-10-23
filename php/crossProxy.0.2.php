@@ -41,7 +41,7 @@ function __shutdown_handler() {
 	}    
 }
 function __error( $msg ) {
-	header( "HTTP/1.0 400 ".$msg );
+	header( "HTTP/1.0 400 ".urlencode($msg) );
 	exit;
 }
 function getData( &$v, $k ){
