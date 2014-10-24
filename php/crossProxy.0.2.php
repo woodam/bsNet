@@ -41,7 +41,7 @@ function __shutdown_handler() {
 	}    
 }
 function __error( $msg ) {
-	header( "HTTP/1.0 400 ".urlencode($msg) );
+	header( "HTTP/1.0 400 ".preg_replace(array('/[\t\n\r]/','/\s/'), ' ', $msg) );
 	exit;
 }
 function getData( &$v, $k ){
