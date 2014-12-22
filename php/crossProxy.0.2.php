@@ -14,7 +14,6 @@ function __curl( $url, $header, $cookie, $data ){
 		curl_setopt( $t0, $args[$i++], $args[$i++] );
 	}
 	curl_setopt( $t0, CURLOPT_URL, $url );
-
 	if( $cookie && strlen($cookie) > 0 ) curl_setopt( $t0, CURLOPT_COOKIE, $cookie );
 	if( $header && count($header) > 0 ) curl_setopt( $t0, CURLOPT_HTTPHEADER, $header ); 
 	if( $data && strlen($data) > 0 ) curl_setopt( $t0, CURLOPT_POSTFIELDS, $data );
@@ -63,7 +62,6 @@ header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-header: Content-Type, Cache-Control');
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: text/html; charset=utf-8');
-
 error_reporting( E_ALL );
 ini_set( 'display_errors', 0 );
 ini_set( 'log_errors', 1 );
@@ -72,7 +70,6 @@ ini_set( 'session.use_trans_sid', 0 );
 register_shutdown_function( '__shutdown_handler' );
 set_exception_handler( '__exception_handler' );
 set_error_handler( '__error_handler' );
-
 if( count($_POST) == 0 && isset($HTTP_RAW_POST_DATA) ){
 	$data = explode('&', $HTTP_RAW_POST_DATA);
 	for( $i = 0, $j = count($data); $i < $j; ++$i ){
@@ -83,12 +80,10 @@ if( count($_POST) == 0 && isset($HTTP_RAW_POST_DATA) ){
 		}
 	}
 }
-
 if( !isset($_POST['url']) || !isset($_POST['method']) || !isset($_POST['data']) || !isset($_POST['header'] ) || !isset($_POST['key']) ) {
 	__error('Wrong parameters');
 	exit;
 }
-
 $url = $_POST['url'];
 $method = $_POST['method'];
 $cookie = isset($_POST['cookie']) ? urldecode($_POST['cookie']) : null;
@@ -106,7 +101,6 @@ foreach( $temps as $k => $v ){
 	}
 }
 $data = $_POST['data'];
-
 $result = http( $method, $url, $header, $data ? $data : json_encode(array('test'=>'test')), $cookie );
 switch( $command ){
 case'restMix':
@@ -121,14 +115,14 @@ case'restMix':
 	if( $cData['method'] == 'array' ){
 		for( $i = 0, $j = count($t0) ; $i < $j ; $i++ ){
 			$t1 = str_replace( '@key@', urlencode($t0[$i][$key]), $url );
-			$t0[$i][$target] =  $type == 'data' ? json_decode( http( $method, $t1, $header, $cookie ), TRUE ) : $t1;
+			$t0[$i][$target] =  $type == 'data' ? json_decode( http( $method, $t1, $header, json_encode(array('test'=>'test')), $cookie ), TRUE ) : $t1;
 		}
 	}else{
 		$limit = explode( ',', getData( $result, $cData['limit'] ) );
 		foreach( $limit as $k ){
 			if( isset( $t0[$k] ) ){
 				$t1 = str_replace( '@key@', urlencode($t0[$k][$key]), $url );
-				$t0[$k][$target] = $type == 'data' ? json_decode( http( $method, $t1, $header, $cookie ), TRUE ) : $t1;
+				$t0[$k][$target] = $type == 'data' ? json_decode( http( $method, $t1, $header, json_encode(array('test'=>'test')), $cookie ), TRUE ) : $t1;
 			}
 		}
 	}
