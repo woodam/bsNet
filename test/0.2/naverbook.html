@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang='ko'>
+<head>
+<meta charset="UTF-8">
+<title>bsNet를 이용한 Naver 도서 검색</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+</head>
+<body>
+<div id="wrap">
+    <div class="container">
+	    <div class="page-header"><h1>bsNet를 이용한 Naver 도서 검색</h1></div>
+        <div class="row">
+            <form onsubmit="return false;">
+                <div class="col-xs-8"><input id="keyword" type="text" class="form-control" placeholder="검색어를 입력하세요"></div>
+                <div class="col-xs-4"><div id="btnSearch" class="btn btn-default">Search</a></div>            
+            </form>
+        </div>   
+        <p>&nbsp;</p>  
+      	<table class="table">
+        	<thead>
+            	<tr>
+            	<th>이미지</th>
+            	<th>링크</th>
+                </tr>
+            </thead>
+            <tbody id="result"></tbody>
+        </table> 
+    </div>
+</div>
+<script src="//projectbs.github.io/bsNet/bsNet.0.2.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+<script>
+jQuery(document).ready(function($){
+	var dom = {
+		btnSearch:$('#btnSearch'),
+		keyword:$('#keyword'),
+		result:$('#result')
+	}, 
+	search = (function(){
+		var end = function(data){
+			if( !data ) return alert('데이터를 가져오지 못했습니다.');
+			try{
+				data = $.parseXML(data);
+				console.log(data);
+				data = $(data);
+				if( parseInt( data.find('display').text(), 10 ) > 0 ){
+					data = data.find('item');
+				}else{
+					return alert('검색결과가 없습니다.')
+				}
+			}catch(e){return alert('데이타 해석 실패 e=' + e.message);}
+			render(data);
+		};
+		return function(e){
+			var t0;
+			dom.result.html('');
+			t0 = $.trim(dom.keyword.val());
+			bsNet.post( end, 'http://openapi.naver.com/search', 
+				'key', 'c1b406b32dbbbbeee5f2a36ddc14067f',
+				'query', t0,
+				'display', 10,
+				'start', 1,
+				'target', 'book'
+			);
+		};
+	})(), 
+	render = function(list){
+		var html, t0, i, j;
+		console.log(list);
+		for( html = '', i = 0, j = list.length ; i < j ; i++ ){
+			t0 = $(list[i]);
+			html += '<tr>';
+			html += '<td><img src="' + t0.find('image').text() + '" onerror="this.src=\'noimage.png\'" width="50"></td>';
+			html += '<td><a href="' + t0.find('link').text() + '" target="_blank">' + t0.find('title').text() + '</a></td>';
+			html += '</tr>';
+		}
+		dom.result.html(html);
+	};
+	dom.btnSearch.click(search);
+	dom.keyword.keydown(function(e){
+		var code = (e.keyCode ? e.keyCode : e.which);
+        if( code != 13 ) return;
+		search();
+	});
+});
+</script>
+</body>
+</html>
